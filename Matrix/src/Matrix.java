@@ -282,7 +282,7 @@ public final class Matrix<T> {
      * @return the element
      */
     public T element(int i, int j) {
-        assert i <= this.rows()
+        assert i > 0 && i <= this.rows() && j > 0
                 && j <= this.columns() : "Violation of: index is in range";
 
         return this.entries.entry(i - 1).entry(j - 1);
@@ -355,55 +355,68 @@ public final class Matrix<T> {
         int rowCount = result.rows();
         int columnCount = result.columns();
 
-        for (int r = 1; r <= rowCount; r++) {
+        for (int r = 0; r < rowCount; r++) {
             if (columnCount <= lead) {
                 break;
             }
             int i = r;
-            while (isEqual(result.element(i, lead + 1), 0.0)) {
+            while (i < rowCount
+                    && isEqual(result.element(i + 1, lead + 1), 0.0)) {
                 i++;
-                if (rowCount == i) {
+                if (i == rowCount) {
                     i = r;
                     lead++;
                     if (columnCount == lead) {
+                        // Replace -0.0 with 0.0
+                        for (i = 1; i <= result.rows(); i++) {
+                            for (int j = 1; j <= result.columns(); j++) {
+
+                                if (isEqual(result.element(i, j), 0.0)) {
+                                    result.swapEntry(i, j, 0.0);
+                                }
+                            }
+                        }
                         return result;
                     }
                 }
             }
 
             // Swap rows manually
-            Sequence<Double> temp = result.entries.entry(r - 1);
-            result.entries.replaceEntry(r - 1, result.entries.entry(i - 1));
-            result.entries.replaceEntry(i - 1, temp);
+            Sequence<Double> temp = result.entries.entry(r);
+            result.entries.replaceEntry(r, result.entries.entry(i));
+            result.entries.replaceEntry(i, temp);
 
-            double lv = result.element(r, lead + 1);
-            for (int j = 1; j <= columnCount; j++) {
-                result.swapEntry(r, j, result.element(r, j) / lv);
+            double lv = result.element(r + 1, lead + 1);
+            for (int j = 0; j < columnCount; j++) {
+                result.swapEntry(r + 1, j + 1,
+                        result.element(r + 1, j + 1) / lv);
             }
 
-            for (int i1 = 1; i1 <= rowCount; i1++) {
+            for (int i1 = 0; i1 < rowCount; i1++) {
                 if (i1 != r) {
-                    double l = result.element(i1, lead + 1);
-                    for (int j = 1; j <= columnCount; j++) {
-                        result.swapEntry(i1, j, result.element(i1, j)
-                                - l * result.element(r, j));
-                        if (isEqual(result.element(i1, j), 0.0)) {
-                            result.swapEntry(i1, j, 0.0);
+                    double l = result.element(i1 + 1, lead + 1);
+                    for (int j = 0; j < columnCount; j++) {
+                        double newValue = result.element(i1 + 1, j + 1)
+                                - l * result.element(r + 1, j + 1);
+                        if (isEqual(newValue, 0.0)) {
+                            newValue = 0.0;
                         }
-
+                        result.swapEntry(i1 + 1, j + 1, newValue);
                     }
                 }
             }
             lead++;
         }
-        final double zero = 0.0;
+        // Replace -0.0 with 0.0
         for (int i = 1; i <= result.rows(); i++) {
             for (int j = 1; j <= result.columns(); j++) {
-                if (result.element(i, j) == -zero) {
+
+                if (isEqual(result.element(i, j), 0.0)) {
                     result.swapEntry(i, j, 0.0);
                 }
             }
         }
+
         return result;
     }
 
@@ -691,10 +704,9 @@ public final class Matrix<T> {
          */
 
         Matrix<Double> gauss = reduce(intToDouble(
-                new Matrix<Integer>(3, 3, 1, 1, -1, 1, -1, 2, 2, 1, 1)
-                        .augment(new Matrix<Integer>(3, 1, 7, 3, 9))));
+                new Matrix<Integer>(3, 4, 1, 2, 3, -1, 3, 5, 8, -2, 1, 1, 2, 0)
+                        .augment(new Matrix<Integer>(3, 1, 0, 0, 0))));
         gauss.print(out);
-        out.print(gauss.augmented);
 
         /*
          * Close input and output streams
