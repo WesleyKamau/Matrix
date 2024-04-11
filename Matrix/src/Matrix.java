@@ -639,13 +639,12 @@ public final class Matrix<T> {
      *            the length of the string
      * @return the string of spaces
      */
-
     private static String spaces(int i) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (int j = 0; j < i; j++) {
-            s = s.concat(" ");
+            s.append(" ");
         }
-        return s;
+        return s.toString();
     }
 
     /**
