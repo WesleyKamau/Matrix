@@ -1,20 +1,20 @@
 package components.linear;
 
 /**
- * Linear system represented as an integer.
+ * Linear system represented as an double.
  */
 public final class LinearDouble implements Linear<LinearDouble> {
 
     /**
-     * Value of this as an integer.
+     * Value of this as an double.
      */
     private double value;
 
     /**
-     * Constructs a Linear1 object with the specified value.
+     * Constructs a LinearDouble object with the specified value.
      *
      * @param value
-     *            The value of the Linear1 object.
+     *            The value of the LinearDouble object.
      */
     public LinearDouble(double value) {
         this.value = value;

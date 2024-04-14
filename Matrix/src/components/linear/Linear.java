@@ -3,7 +3,7 @@ package components.linear;
 import components.standard.Standard;
 
 /**
- * Work in progress.
+ * Class for linear computations.
  *
  * @param <T>
  *            The type of this
