@@ -388,10 +388,10 @@ public final class UserMatrix {
                 printMatrices(out, index);
             }
 
-            if ((2 - index.size()) == 1) {
+            if ((n - index.size()) == 1) {
                 out.print("You need 1 more matrix.");
             } else {
-                out.print("You need " + (2 - index.size()) + " more matrices.");
+                out.print("You need " + (n - index.size()) + " more matrices.");
             }
 
             newMatrix(out, in, index);
@@ -461,7 +461,6 @@ public final class UserMatrix {
             } else if (input.equals("add")) {
                 addMatrix(out, in, dex);
             } else if (input.equals("print")) {
-                out.print("Current Matrices: ");
                 printMatrices(out, dex);
             } else if (input.equals("stop")) {
                 out.print("Are you sure? (y/n): ");

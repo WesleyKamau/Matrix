@@ -1,6 +1,7 @@
 package components.matrix;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import components.linear.Linear;
 import components.simplewriter.SimpleWriter;
@@ -461,6 +462,65 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                 this.setElement(i, j, source.element(i, j));
             }
         }
+    }
+
+    @Override
+    public final Iterator<T> iterator() {
+        return new MatrixIterator();
+    }
+
+    /**
+     * Implementation of {@code Iterator} interface for {@code Matrix2}.
+     */
+    final class MatrixIterator implements Iterator<T> {
+
+        /**
+         * Private dimension variables.
+         */
+        private int i, j;
+
+        /**
+         * No-argument constructor.
+         */
+        MatrixIterator() {
+            this.i = 1;
+            this.j = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.i < MatrixSecondary.this.rows()
+                    || this.j < MatrixSecondary.this.columns();
+        }
+
+        @Override
+        public T next() {
+            assert this.hasNext() : "Violation of: ~this.unseen /= <>";
+            if (!this.hasNext()) {
+                /*
+                 * Exception is supposed to be thrown in this case, but with
+                 * assertion-checking enabled it cannot happen because of assert
+                 * above.
+                 */
+                throw new NoSuchElementException();
+            }
+            if (this.j < MatrixSecondary.this.columns()) {
+                this.j++;
+
+            } else {
+                this.j = 1;
+                this.i++;
+
+            }
+            return MatrixSecondary.this.element(this.i, this.j);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException(
+                    "remove operation not supported");
+        }
+
     }
 
 }

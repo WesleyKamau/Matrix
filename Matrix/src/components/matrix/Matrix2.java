@@ -1,7 +1,5 @@
 package components.matrix;
 
-import java.util.Iterator;
-
 import components.linear.Linear;
 import components.linear.LinearDouble;
 import components.sequence.Sequence;
@@ -108,7 +106,7 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
      *            the elements of the matrix
      */
     @SafeVarargs
-    Matrix2(int m, int n, T... elements) {
+    public Matrix2(int m, int n, T... elements) {
         assert elements.length == (m
                 * n) : "Violation of: elements.length == m * n";
         assert m >= 1 : "Violation of: m is at least 1";
@@ -258,12 +256,6 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public boolean isAugmented() {
         return this.augmented;
     }
@@ -317,6 +309,10 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
 
         // Print reduced A | B
         reduced.print(out);
+
+        for (LinearDouble element : augmented) {
+            out.println(element);
+        }
 
     }
 
