@@ -116,13 +116,11 @@ public final class LinearDouble implements Linear<LinearDouble> {
         return Math.abs(a - b) < EPSILON;
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public int hashCode() {
         return Double.hashCode(this.value);
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public String toString() {
         double temp = this.value;
