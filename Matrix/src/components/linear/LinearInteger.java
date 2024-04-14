@@ -20,6 +20,20 @@ public final class LinearInteger implements Linear<LinearInteger> {
         this.value = value;
     }
 
+    /**
+     * Basic constructor.
+     */
+    public LinearInteger() {
+        this.createNewRep();
+    }
+
+    /**
+     * Sets this to initial value.
+     */
+    private void createNewRep() {
+        this.value = 0;
+    }
+
     @Override
     public LinearInteger add(LinearInteger other) {
         return new LinearInteger(this.value + other.value);
@@ -33,6 +47,16 @@ public final class LinearInteger implements Linear<LinearInteger> {
     @Override
     public LinearInteger constant(double c) {
         return new LinearInteger((int) (this.value * c));
+    }
+
+    @Override
+    public LinearInteger divide(LinearInteger denominator) {
+        return new LinearInteger(this.value / denominator.value);
+    }
+
+    @Override
+    public LinearInteger multiply(LinearInteger other) {
+        return new LinearInteger(this.value * other.value);
     }
 
     @Override
@@ -64,6 +88,33 @@ public final class LinearInteger implements Linear<LinearInteger> {
     @Override
     public String toString() {
         return Integer.toString(this.value);
+    }
+
+    @Override
+    public boolean isZero() {
+        return this.value == 0;
+    }
+
+    @Override
+    public void clear() {
+        this.createNewRep();
+    }
+
+    @Override
+    public LinearInteger newInstance() {
+        return new LinearInteger();
+    }
+
+    @Override
+    public void transferFrom(LinearInteger source) {
+        this.value = source.value;
+        source.clear();
+
+    }
+
+    @Override
+    public boolean isOne() {
+        return this.value == 1;
     }
 
 }

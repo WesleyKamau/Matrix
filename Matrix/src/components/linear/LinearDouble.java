@@ -20,19 +20,63 @@ public final class LinearDouble implements Linear<LinearDouble> {
         this.value = value;
     }
 
+    /**
+     * Basic constructor.
+     */
+    public LinearDouble() {
+        this.createNewRep();
+    }
+
+    /**
+     * Sets this to initial value.
+     */
+    private void createNewRep() {
+        this.value = 0;
+    }
+
     @Override
     public LinearDouble add(LinearDouble other) {
-        return new LinearDouble(this.value + other.value);
+        LinearDouble result = new LinearDouble(this.value + other.value);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
     }
 
     @Override
     public LinearDouble constant(int c) {
-        return new LinearDouble(this.value * c);
+        LinearDouble result = new LinearDouble(this.value * c);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
     }
 
     @Override
     public LinearDouble constant(double c) {
-        return new LinearDouble(this.value * c);
+        LinearDouble result = new LinearDouble(this.value * c);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
+    }
+
+    @Override
+    public LinearDouble divide(LinearDouble denominator) {
+        LinearDouble result = new LinearDouble(this.value / denominator.value);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
+    }
+
+    @Override
+    public LinearDouble multiply(LinearDouble other) {
+        LinearDouble result = new LinearDouble(this.value * other.value);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
     }
 
     @Override
@@ -81,6 +125,45 @@ public final class LinearDouble implements Linear<LinearDouble> {
     // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public String toString() {
+        double temp = this.value;
+
+        while (temp >= 1.0) {
+            temp -= 1.0;
+        }
+
+        if (Math.abs(temp) < EPSILON) {
+            return Double.toString(this.value).substring(0,
+                    Double.toString(this.value).indexOf('.'));
+        }
         return Double.toString(this.value);
     }
+
+    @Override
+    public boolean isZero() {
+        return Math.abs(this.value) < EPSILON;
+    }
+
+    @Override
+    public void clear() {
+        this.value = 0;
+
+    }
+
+    @Override
+    public LinearDouble newInstance() {
+        return new LinearDouble();
+    }
+
+    @Override
+    public void transferFrom(LinearDouble source) {
+        this.value = source.value;
+        source.clear();
+
+    }
+
+    @Override
+    public boolean isOne() {
+        return Math.abs(this.value - 1) < EPSILON;
+    }
+
 }

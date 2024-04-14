@@ -100,23 +100,30 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder(
-                " _" + this.spaces(this.maxLength() + 2 * this.columns() + 2)
-                        + "_\n");
+        StringBuilder result = new StringBuilder();
 
+        String augmentedRow = "";
+        if (this.isAugmented()) {
+            augmentedRow = "| ";
+        }
+
+        result.append(" _" + this.spaces(this.maxLength() + 1 * this.columns()
+                + augmentedRow.length() + 1) + "_\n");
         for (int i = 1; i <= this.rows(); i++) {
-            result.append("|   ");
+            result.append("|  ");
             for (int j = 1; j <= this.columns(); j++) {
+                if (this.isAugmented() && j == this.leftColumns() + 1) {
+                    result.append(augmentedRow);
+                }
                 result.append(this.element(i, j)
                         + this.spaces(this.maxColumnEntry(j)
                                 - this.element(i, j).toString().length())
-                        + "  ");
+                        + " ");
             }
             result.append(" |\n");
         }
-        result.append(
-                " ‾" + this.spaces(this.maxLength() + 2 * this.columns() + 2)
-                        + "‾\n");
+        result.append(" ‾" + this.spaces(this.maxLength() + 1 * this.columns()
+                + augmentedRow.length() + 1) + "‾\n");
 
         return result.toString();
     }
@@ -146,6 +153,7 @@ public abstract class MatrixSecondary<T extends Linear<T>>
      * @param out
      *            the output stream
      */
+    @Override
     public void print(SimpleWriter out) {
         assert out.isOpen() : "Violation of: out is open";
 
@@ -159,10 +167,10 @@ public abstract class MatrixSecondary<T extends Linear<T>>
         for (int i = 1; i <= this.rows(); i++) {
             out.print("|  ");
             for (int j = 1; j <= this.columns(); j++) {
-                if (this.isAugmented() && j == this.originalColumns() + 1) {
+                if (this.isAugmented() && j == this.leftColumns() + 1) {
                     out.print(augmentedRow);
                 }
-                out.print(this.element(i, j)
+                out.print(this.element(i, j).toString()
                         + this.spaces(this.maxColumnEntry(j)
                                 - this.element(i, j).toString().length())
                         + " ");
@@ -175,16 +183,45 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     }
 
     /**
-     * Attempts to reduce the given matrix into RREF.
+     * Adds up the length of the longest elements in each column.
      *
-     * @param a
-     *            The matrix to be reduced.
+     * @return the number of characters of the longest row.
+     */
+    private int maxLength() {
+        int total = 0;
+        for (int j = 1; j <= this.columns(); j++) {
+            total += this.maxColumnEntry(j);
+        }
+        return total;
+    }
+
+    /**
+     * Finds the length of the longest entry in the column.
+     *
+     * @param column
+     *            the column
+     * @return the length of the longest entry in the column
+     */
+    private int maxColumnEntry(int column) {
+        int max = 0;
+        for (int i = 1; i <= this.rows(); i++) {
+            int currentEntry = this.element(i, column).toString().length();
+            if (currentEntry > max) {
+                max = currentEntry;
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Attempts to reduce this into RREF.
      *
      * @return {@code this} in RREF.
      */
-    public Matrix<T> reduce(Matrix<T> a) {
-        Matrix<T> result = a.newInstance();
-        result.copyFrom(a);
+    @Override
+    public Matrix<T> reduce() {
+        Matrix<T> result = this.newInstance();
+        result.copyFrom(this);
         int lead = 0;
         int rowCount = result.rows();
         int columnCount = result.columns();
@@ -206,40 +243,224 @@ public abstract class MatrixSecondary<T extends Linear<T>>
             }
 
             // Swap rows manually
-            result.swapRows(r, i);
+            result.swapRows(r + 1, i + 1);
 
-            double lv = result.element(r + 1, lead + 1);
+            T lv = result.element(r + 1, lead + 1);
             for (int j = 0; j < columnCount; j++) {
-                result.swapEntry(r + 1, j + 1,
-                        result.element(r + 1, j + 1).constant() / lv);
+                result.setElement(r + 1, j + 1,
+                        result.element(r + 1, j + 1).divide(lv));
             }
 
             for (int i1 = 0; i1 < rowCount; i1++) {
                 if (i1 != r) {
-                    double l = result.element(i1 + 1, lead + 1);
+                    T l = result.element(i1 + 1, lead + 1);
                     for (int j = 0; j < columnCount; j++) {
-                        double newValue = result.element(i1 + 1, j + 1)
-                                - l * result.element(r + 1, j + 1);
-                        if (isEqual(newValue, 0.0)) {
-                            newValue = 0.0;
-                        }
-                        result.swapEntry(i1 + 1, j + 1, newValue);
+                        result.setElement(i1 + 1, j + 1,
+                                result.element(i1 + 1, j + 1)
+                                        .add(l.constant(-1).multiply(
+                                                result.element(r + 1, j + 1))));
                     }
                 }
             }
             lead++;
         }
-        // Replace -0.0 with 0.0
-        for (int i = 1; i <= result.rows(); i++) {
-            for (int j = 1; j <= result.columns(); j++) {
 
-                if (isEqual(result.element(i, j), 0.0)) {
-                    result.swapEntry(i, j, 0.0);
+        return result;
+    }
+
+    /**
+     * Multiplies the matrix by a constant and returns the result matrix.
+     *
+     * @param c
+     *            the constant
+     * @return A matrix that is the original matrix multiplied by constant c
+     */
+    @Override
+    public Matrix<T> multiply(int c) {
+        Matrix<T> result = this.newInstance();
+        result.setColumns(this.columns());
+        result.setRows(this.rows());
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).constant(c));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Multiplies the matrix by a constant and returns the result matrix.
+     *
+     * @param c
+     *            the constant
+     * @return A matrix that is the original matrix multiplied by constant c
+     */
+    @Override
+    public Matrix<T> multiply(double c) {
+        Matrix<T> result = this.newInstance();
+        result.setColumns(this.columns());
+        result.setRows(this.rows());
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).constant(c));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns matrix multiplication thisA.
+     *
+     * @param a
+     *            matrix A
+     * @return thisA
+     */
+    @Override
+    public Matrix<T> multiply(Matrix<T> a) {
+        assert this.rows() == a
+                .columns() : "Violation of: rows(this) == cols(a)";
+        assert this.columns() == a
+                .rows() : "Violation of: cols(this) == rows(a)";
+
+        Matrix<T> result = this.newInstance();
+        result.setColumns(a.columns());
+        result.setRows(this.rows());
+
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= a.columns(); j++) {
+                for (int k = 1; k <= this.columns(); k++) {
+                    result.setElement(i, j, result.element(i, j)
+                            .add(this.element(i, k).multiply(a.element(k, j))));
                 }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Swaps the given entry in this with the given entry, and returns what was
+     * in its place.
+     *
+     * @param i
+     *            the i index
+     * @param j
+     *            the j index
+     * @param entry
+     *            the new value at that position
+     * @return the old value at that position
+     */
+    @Override
+    public T swapEntry(int i, int j, T entry) {
+        T temp = this.element(i, j);
+        this.setElement(i, j, entry);
+        return temp;
+    }
+
+    /**
+     * Creates and returns augmented matrix [this | b].
+     *
+     * @param b
+     *            the right side of the matrix
+     * @return a matrix representing [this | b]
+     */
+    @Override
+    public Matrix<T> augment(Matrix<T> b) {
+        assert this.rows() == b
+                .rows() : "Violation of: this.rows() == b.rows()";
+
+        Matrix<T> result = this.newInstance();
+        result.setColumns(this.columns() + b.columns());
+        result.setRows(this.rows());
+
+        for (int i = 1; i <= this.rows(); i++) {
+            int count = 1;
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, count, this.element(i, j));
+                count++;
+
+            }
+            for (int j = 1; j <= b.columns(); j++) {
+                result.setElement(i, count, b.element(i, j));
+                count++;
+            }
+        }
+        result.setAugmented(this.columns());
+        return result;
+    }
+
+    /**
+     * Adds two matrices and returns the result.
+     *
+     * @param a
+     *            the first matrix being added.
+     * @return A matrix representing this + a
+     */
+    @Override
+    public Matrix<T> add(Matrix<T> a) {
+        assert a.rows() == this.rows() && a.columns() == this
+                .columns() : "Violation of: a and this are the same size";
+
+        Matrix<T> result = this.newInstance();
+        result.setColumns(this.columns());
+        result.setRows(this.rows());
+
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j,
+                        this.element(i, j).add(a.element(i, j)));
             }
         }
 
         return result;
+
+    }
+
+    /**
+     * Determines if this is in Reduced Row Echelon Form.
+     *
+     * @return true if this is in RREF
+     */
+    @Override
+    public boolean isRREF() {
+        boolean result = true;
+        for (int i = 1; i <= this.rows() && result; i++) {
+            boolean foundLeadingDigit = false;
+            for (int j = 1; j <= this.columns() && !foundLeadingDigit
+                    && result; j++) {
+                if (!this.element(i, j).isZero()) {
+                    foundLeadingDigit = true;
+                    if (!this.element(i, j).isOne()) {
+                        result = false;
+                    } else {
+                        for (int k = 1; k < this.rows(); k++) {
+                            if (k != j) {
+                                if (!this.element(k, j).isZero()) {
+                                    result = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return result;
+    }
+
+    @Override
+    public final void copyFrom(Matrix<T> source) {
+        this.clear();
+        this.setColumns(source.columns());
+        this.setRows(source.rows());
+        if (source.isAugmented()) {
+            this.setAugmented(source.leftColumns());
+        }
+
+        for (int i = 1; i <= source.rows(); i++) {
+            for (int j = 1; j <= source.columns(); j++) {
+                this.setElement(i, j, source.element(i, j));
+            }
+        }
     }
 
 }

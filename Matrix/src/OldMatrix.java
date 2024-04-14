@@ -13,7 +13,7 @@ import components.simplewriter.SimpleWriter1L;
  *            the type being held by the matrix
  *
  */
-public final class Matrix<T> {
+public final class OldMatrix<T> {
 
     /**
      * entries represented as a 2d array as a sequence.
@@ -36,7 +36,7 @@ public final class Matrix<T> {
      * @param entries
      *            the Sequence of Sequences.
      */
-    Matrix(Sequence<Sequence<T>> entries) {
+    OldMatrix(Sequence<Sequence<T>> entries) {
         this.entries = entries;
         this.augmented = false;
         this.originalcolumns = 0;
@@ -48,7 +48,7 @@ public final class Matrix<T> {
      * @param source
      *            the matrix.
      */
-    private Matrix(Matrix<T> source) {
+    private OldMatrix(OldMatrix<T> source) {
         Sequence<Sequence<T>> tempEntries = new Sequence1L<Sequence<T>>();
         for (int i = 1; i <= source.rows(); i++) {
             Sequence<T> row = new Sequence1L<T>();
@@ -73,7 +73,7 @@ public final class Matrix<T> {
      *            the elements of the matrix
      */
     @SafeVarargs
-    Matrix(int m, int n, T... elements) {
+    OldMatrix(int m, int n, T... elements) {
         assert elements.length == (m
                 * n) : "Violation of: elements.length == m * n";
         assert m >= 1 : "Violation of: m is at least 1";
@@ -141,7 +141,7 @@ public final class Matrix<T> {
      *
      * @return a transposed version of {@code this}.
      */
-    public Matrix<T> transpose() {
+    public OldMatrix<T> transpose() {
         Sequence<Sequence<T>> tempEntries = new Sequence1L<Sequence<T>>();
 
         for (int i = 1; i <= this.columns(); i++) {
@@ -151,7 +151,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<T>(tempEntries);
+        return new OldMatrix<T>(tempEntries);
     }
 
     /**
@@ -196,11 +196,11 @@ public final class Matrix<T> {
             return true;
         }
 
-        if (!(o instanceof Matrix)) {
+        if (!(o instanceof OldMatrix)) {
             return false;
         }
 
-        Matrix<?> c = (Matrix<?>) o;
+        OldMatrix<?> c = (OldMatrix<?>) o;
 
         if (this.rows() != c.rows() || this.columns() != c.columns()) {
             return false;
@@ -295,7 +295,7 @@ public final class Matrix<T> {
      *            the matrix
      * @return true if A is in RREF
      */
-    public static boolean isRREF(Matrix<Double> a) {
+    public static boolean isRREF(OldMatrix<Double> a) {
         boolean result = true;
         for (int i = 1; i <= a.rows() && result; i++) {
             boolean foundLeadingDigit = false;
@@ -327,7 +327,7 @@ public final class Matrix<T> {
      * @param source
      *            The source matrix.
      */
-    public void copyFrom(Matrix<T> source) {
+    public void copyFrom(OldMatrix<T> source) {
         Sequence<Sequence<T>> tempEntries = new Sequence1L<Sequence<T>>();
         for (int i = 1; i <= source.rows(); i++) {
             Sequence<T> row = new Sequence1L<T>();
@@ -349,8 +349,8 @@ public final class Matrix<T> {
      *
      * @return {@code this} in RREF.
      */
-    public static Matrix<Double> reduce(Matrix<Double> a) {
-        Matrix<Double> result = new Matrix<Double>(a);
+    public static OldMatrix<Double> reduce(OldMatrix<Double> a) {
+        OldMatrix<Double> result = new OldMatrix<Double>(a);
         int lead = 0;
         int rowCount = result.rows();
         int columnCount = result.columns();
@@ -443,7 +443,7 @@ public final class Matrix<T> {
      *            the right side of the matrix
      * @return a matrix representing [this | b]
      */
-    public Matrix<T> augment(Matrix<T> b) {
+    public OldMatrix<T> augment(OldMatrix<T> b) {
         assert this.rows() == b
                 .rows() : "Violation of: this.rows() == b.rows()";
 
@@ -458,7 +458,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        Matrix<T> result = new Matrix<T>(tempEntries);
+        OldMatrix<T> result = new OldMatrix<T>(tempEntries);
         result.augmented = true;
         result.originalcolumns = this.columns();
         return result;
@@ -473,7 +473,7 @@ public final class Matrix<T> {
      *            The second matrix being added.
      * @return A matrix representing the matrix sum.
      */
-    public static Matrix<Integer> add(Matrix<Integer> a, Matrix<Integer> b) {
+    public static OldMatrix<Integer> add(OldMatrix<Integer> a, OldMatrix<Integer> b) {
         assert a.rows() == b.rows() && a.columns() == b
                 .columns() : "Violation of: a and b are the same size";
 
@@ -485,7 +485,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<Integer>(tempEntries);
+        return new OldMatrix<Integer>(tempEntries);
     }
 
     /**
@@ -497,7 +497,7 @@ public final class Matrix<T> {
      *            The second matrix being added.
      * @return A matrix representing the matrix sum.
      */
-    public static Matrix<Double> doubleadd(Matrix<Double> a, Matrix<Double> b) {
+    public static OldMatrix<Double> doubleadd(OldMatrix<Double> a, OldMatrix<Double> b) {
         assert a.rows() == b.rows() && a.columns() == b
                 .columns() : "Violation of: a and b are the same size";
 
@@ -509,7 +509,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<Double>(tempEntries);
+        return new OldMatrix<Double>(tempEntries);
     }
 
     /**
@@ -521,7 +521,7 @@ public final class Matrix<T> {
      *            The second matrix being added.
      * @return A matrix representing the matrix sum.
      */
-    public static Matrix<String> stringadd(Matrix<String> a, Matrix<String> b) {
+    public static OldMatrix<String> stringadd(OldMatrix<String> a, OldMatrix<String> b) {
         assert a.rows() == b.rows() && a.columns() == b
                 .columns() : "Violation of: a and b are the same size";
 
@@ -533,7 +533,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<String>(tempEntries);
+        return new OldMatrix<String>(tempEntries);
     }
 
     /**
@@ -545,7 +545,7 @@ public final class Matrix<T> {
      *            the matrix to be multiplied
      * @return A matrix that is the original matrix multiplied by constant c
      */
-    public static Matrix<Integer> multiply(int c, Matrix<Integer> a) {
+    public static OldMatrix<Integer> multiply(int c, OldMatrix<Integer> a) {
         Sequence<Sequence<Integer>> tempEntries = new Sequence1L<Sequence<Integer>>();
         for (int i = 1; i <= a.rows(); i++) {
             Sequence<Integer> row = new Sequence1L<Integer>();
@@ -554,7 +554,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<Integer>(tempEntries);
+        return new OldMatrix<Integer>(tempEntries);
     }
 
     /**
@@ -566,8 +566,8 @@ public final class Matrix<T> {
      *            matrix B
      * @return AB
      */
-    public static Matrix<Integer> multiply(Matrix<Integer> a,
-            Matrix<Integer> b) {
+    public static OldMatrix<Integer> multiply(OldMatrix<Integer> a,
+            OldMatrix<Integer> b) {
         assert a.rows() == b.columns() : "Violation of: rows(a) == cols(b)";
         assert a.columns() == b.rows() : "Violation of: cols(a) == rows(b)";
 
@@ -583,7 +583,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        return new Matrix<Integer>(tempEntries);
+        return new OldMatrix<Integer>(tempEntries);
     }
 
     /**
@@ -617,7 +617,7 @@ public final class Matrix<T> {
         return max;
     }
 
-    public static Matrix<Double> intToDouble(Matrix<Integer> a) {
+    public static OldMatrix<Double> intToDouble(OldMatrix<Integer> a) {
         Sequence<Sequence<Double>> tempEntries = new Sequence1L<Sequence<Double>>();
         for (int i = 1; i <= a.rows(); i++) {
             Sequence<Double> row = new Sequence1L<Double>();
@@ -626,7 +626,7 @@ public final class Matrix<T> {
             }
             tempEntries.add(tempEntries.length(), row);
         }
-        Matrix<Double> result = new Matrix<Double>(tempEntries);
+        OldMatrix<Double> result = new OldMatrix<Double>(tempEntries);
         result.augmented = a.augmented;
         result.originalcolumns = a.originalcolumns;
         return result;
@@ -661,7 +661,7 @@ public final class Matrix<T> {
         //ssssssssssssss  7, 8, 9);
         //test.print(out);
 
-        final Matrix<Double> test2 = new Matrix<Double>(3, 3, 0., 1., 3., -1.,
+        final OldMatrix<Double> test2 = new OldMatrix<Double>(3, 3, 0., 1., 3., -1.,
                 -3., 3., 1., -3., 0.);
         //Matrix<Double> RREF = new Matrix<Double>(2, 2, 1.0, 0.0, 0.0, 1.0);
         // test2.print(out);
@@ -702,9 +702,9 @@ public final class Matrix<T> {
          * reducedAugmented.print(out);
          */
 
-        Matrix<Double> gauss = reduce(intToDouble(
-                new Matrix<Integer>(3, 4, 1, 2, 3, -1, 3, 5, 8, -2, 1, 1, 2, 0)
-                        .augment(new Matrix<Integer>(3, 1, 0, 0, 0))));
+        OldMatrix<Double> gauss = reduce(intToDouble(
+                new OldMatrix<Integer>(3, 4, 1, 2, 3, -1, 3, 5, 8, -2, 1, 1, 2, 0)
+                        .augment(new OldMatrix<Integer>(3, 1, 0, 0, 0))));
         gauss.print(out);
 
         /*

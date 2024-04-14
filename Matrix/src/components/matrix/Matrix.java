@@ -1,6 +1,7 @@
 package components.matrix;
 
 import components.linear.Linear;
+import components.simplewriter.SimpleWriter;
 
 /**
  * {@code QueueKernel} enhanced with secondary methods.
@@ -23,9 +24,102 @@ import components.linear.Linear;
  * }
  */
 public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
+
     /**
-     * Swaps the given entry with the given entry, and returns what was in its
-     * place.
+     * Swaps row1 and row2.
+     *
+     * @param row1
+     *            the first row to be swapped
+     * @param row2
+     *            the second row to be swapped
+     */
+    void swapRows(int row1, int row2);
+
+    /**
+     * Copies the value of source into this.
+     *
+     * @param source
+     *            the Matrix to copy from
+     */
+    void copyFrom(Matrix<T> source);
+
+    /**
+     * Returns if {@code this} is an augmented matrix.
+     *
+     * @return true if this is an augment matrix.
+     */
+    boolean isAugmented();
+
+    /**
+     * Sets the value of the AUGMENTED flag to true.
+     *
+     * @param leftColumns
+     *            the number of columns on the left side of the Matrix
+     *
+     */
+    void setAugmented(int leftColumns);
+
+    /**
+     * Returns the number of left columns in an augmented matrix.
+     *
+     * @return the number of left columns.
+     */
+    int leftColumns();
+
+    @Override
+    boolean equals(Object obj);
+
+    @Override
+    int hashCode();
+
+    @Override
+    String toString();
+
+    /**
+     * Prints this to the provided SimpleWriter.
+     *
+     * @param out
+     *            the output stream
+     */
+    void print(SimpleWriter out);
+
+    /**
+     * Attempts to reduce this into RREF.
+     *
+     * @return {@code this} in RREF.
+     */
+    Matrix<T> reduce();
+
+    /**
+     * Multiplies the matrix by a constant and returns the result matrix.
+     *
+     * @param c
+     *            the constant
+     * @return A matrix that is the original matrix multiplied by constant c
+     */
+    Matrix<T> multiply(int c);
+
+    /**
+     * Multiplies the matrix by a constant and returns the result matrix.
+     *
+     * @param c
+     *            the constant
+     * @return A matrix that is the original matrix multiplied by constant c
+     */
+    Matrix<T> multiply(double c);
+
+    /**
+     * Returns matrix multiplication thisA.
+     *
+     * @param a
+     *            matrix A
+     * @return thisA
+     */
+    Matrix<T> multiply(Matrix<T> a);
+
+    /**
+     * Swaps the given entry in this with the given entry, and returns what was
+     * in its place.
      *
      * @param i
      *            the i index
@@ -47,61 +141,19 @@ public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
     Matrix<T> augment(Matrix<T> b);
 
     /**
-     * Adds two matrices and returns the result of integer addition.
+     * Adds two matrices and returns the result.
      *
      * @param a
      *            the first matrix being added.
-     * @param b
-     *            The second matrix being added.
-     * @return A matrix representing the matrix sum.
+     * @return A matrix representing this + a
      */
-    Matrix<T> add(Matrix<T> a, Matrix<T> b);
+    Matrix<T> add(Matrix<T> a);
 
     /**
-     * Adds up the length of the longest elements in each column.
+     * Determines if this is in Reduced Row Echelon Form.
      *
-     * @return the number of characters of the longest row.
+     * @return true if this is in RREF
      */
-    int maxLength();
+    boolean isRREF();
 
-    /**
-     * Finds the length of the longest entry in the column.
-     *
-     * @param column
-     *            the column
-     * @return the length of the longest entry in the column
-     */
-    int maxColumnEntry(int column);
-
-    /**
-     * Returns if {@code this} is an augmented matrix.
-     *
-     * @return true if this is an augment matrix.
-     */
-    boolean isAugmented();
-
-    /**
-     * Returns the number of rows in the original column of an augment matrix.
-     *
-     * @return The number of rows in the original column of an augment matrix.
-     */
-    int originalColumns();
-
-    /**
-     * Swaps row1 and row2.
-     *
-     * @param row1
-     *            the first row to be swapped
-     * @param row2
-     *            the second row to be swapped
-     */
-    void swapRows(int row1, int row2);
-
-    /**
-     * Copies the value of source into this.
-     *
-     * @param source
-     *            the Matrix to copy from
-     */
-    void copyFrom(Matrix<T> source);
 }
