@@ -4,24 +4,14 @@ import components.linear.Linear;
 import components.simplewriter.SimpleWriter;
 
 /**
- * {@code QueueKernel} enhanced with secondary methods.
+ * {@code Matrix<T>} enhanced with secondary methods.
  *
  * @param <T>
- *            type of {@code Queue} entries
- * @mathdefinitions {@code
- * IS_TOTAL_PREORDER (
- *   r: binary relation on T
- *  ) : boolean is
- *  for all x, y, z: T
- *   ((r(x, y) or r(y, x))  and
- *    (if (r(x, y) and r(y, z)) then r(x, z)))
+ *            the type of entries in the matrix
  *
- * IS_SORTED (
- *   s: string of T,
- *   r: binary relation on T
- *  ) : boolean is
- *  for all x, y: T where (<x, y> is substring of s) (r(x, y))
- * }
+ * @mathmodel Matrix<T> represents a matrix with entries of type T.
+ *
+ * @author Wesley Kamau
  */
 public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
 

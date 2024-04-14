@@ -1,19 +1,15 @@
 package components.matrix;
 
 import components.linear.Linear;
-import components.linear.LinearDouble;
 import components.sequence.Sequence;
 import components.sequence.Sequence1L;
-import components.simplewriter.SimpleWriter;
-import components.simplewriter.SimpleWriter1L;
 
 /**
- * Put a short phrase describing the program here.
+ * {@code Matrix} represented as a 2d array of sequences.
  *
- * @author Wesley Kamau
  * @param <T>
- *            the type being held by the matrix
- *
+ *            the type of entries in the matrix
+ * @author Wesley Kamau
  */
 public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
 
@@ -269,51 +265,6 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
     @Override
     public int leftColumns() {
         return this.leftcolumns;
-    }
-
-    /**
-     * Main method.
-     *
-     * @param args
-     *            the command line arguments
-     */
-    public static void main(String[] args) {
-        SimpleWriter out = new SimpleWriter1L();
-
-        final double three = 3.0;
-        final double four = 4.0;
-
-        // Create A
-        Matrix<LinearDouble> a = new Matrix2<LinearDouble>(2, 2,
-                new LinearDouble(1.), new LinearDouble(2.),
-                new LinearDouble(three), new LinearDouble(four));
-
-        // Print A
-        a.print(out);
-
-        // Create B
-        Matrix<LinearDouble> b = new Matrix2<LinearDouble>(2, 1,
-                new LinearDouble(1.), new LinearDouble(2.));
-
-        // Print B
-        b.print(out);
-
-        // Augment A | B
-        Matrix<LinearDouble> augmented = a.augment(b);
-
-        // Print A | B
-        augmented.print(out);
-
-        // Reduce A | B
-        Matrix<LinearDouble> reduced = augmented.reduce();
-
-        // Print reduced A | B
-        reduced.print(out);
-
-        for (LinearDouble element : augmented) {
-            out.println(element);
-        }
-
     }
 
 }

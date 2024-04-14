@@ -4,18 +4,16 @@ import components.linear.Linear;
 import components.standard.Standard;
 
 /**
- * First-in-first-out (FIFO) queue kernel component with primary methods. (Note:
- * by package-wide convention, all references are non-null.)
+ * Matrix kernel component with primary methods.
  *
  * @param <T>
- *            type of {@code QueueKernel} entries
- * @mathmodel type QueueKernel is modeled by string of T
- * @initially {@code
- * ():
- *  ensures
- *   this = <>
- * }
+ *            the type of entries in the matrix
+ *
+ * @mathmodel type {@code MatrixKernel<T>} is modeled by a matrix of type T.
+ *
  * @iterator ~this.seen * ~this.unseen = this
+ *
+ * @author Wesley Kamau
  */
 public interface MatrixKernel<T extends Linear<T>>
         extends Standard<Matrix<T>>, Iterable<T> {
