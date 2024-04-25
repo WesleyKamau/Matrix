@@ -11,10 +11,10 @@ public final class LinearInteger implements Linear<LinearInteger> {
     private int value;
 
     /**
-     * Constructs a Linear1 object with the specified value.
+     * Constructs a LinearInteger object with the specified value.
      *
      * @param value
-     *            The value of the Linear1 object.
+     *            The value of the LinearInteger object.
      */
     public LinearInteger(int value) {
         this.value = value;

@@ -86,8 +86,6 @@ public final class UserMatrix {
     private static void printMatrices(SimpleWriter out,
             Map<String, Matrix<LinearDouble>> index) {
 
-        out.println("Current Matrices: ");
-
         for (Map.Pair<String, Matrix<LinearDouble>> element : index) {
             out.println(element.key());
             element.value().print(out);
@@ -136,6 +134,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index) {
         minimumMatrix(out, in, index, 2);
 
+        out.println("Current Matrices: ");
         printMatrices(out, index);
 
         out.print("Enter the name of the matrix on the left:");
@@ -183,6 +182,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index) {
         minimumMatrix(out, in, index, 1);
 
+        out.println("Current Matrices: ");
         printMatrices(out, index);
 
         out.print("Enter the name of the matrix to reduce:");
@@ -220,6 +220,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index) {
         minimumMatrix(out, in, index, 2);
 
+        out.println("Current Matrices: ");
         printMatrices(out, index);
 
         out.print("Enter the name of the matrix on the left:");
@@ -267,6 +268,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index) {
         minimumMatrix(out, in, index, 1);
 
+        out.println("Current Matrices: ");
         printMatrices(out, index);
 
         out.print("Enter the name of the matrix to multiply by a constant:");
@@ -318,7 +320,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index) {
         minimumMatrix(out, in, index, 2);
 
-        out.print("Current Matrices: ");
+        out.println("Current Matrices: ");
         printMatrices(out, index);
 
         out.print("Enter the name of the first matrix:");
@@ -370,6 +372,55 @@ public final class UserMatrix {
     }
 
     /**
+     * Prompts the user for a reduced matrix and checks if it is consistent.
+     *
+     * @param out
+     *            the output stream
+     * @param in
+     *            user input stream
+     * @param index
+     *            the index to update
+     */
+    private static void consistentMatrix(SimpleWriter out, SimpleReader in,
+            Map<String, Matrix<LinearDouble>> index) {
+
+        Map<String, Matrix<LinearDouble>> temp;
+        temp = new Map1L<String, Matrix<LinearDouble>>();
+
+        for (Map.Pair<String, Matrix<LinearDouble>> matrix : index) {
+            if (matrix.value().isRREF()) {
+                temp.add(matrix.key(), matrix.value());
+            }
+        }
+
+        if (temp.size() > 0) {
+
+            out.println("Current Reduced Matrices: ");
+            printMatrices(out, temp);
+
+            out.print("Enter the name of the matrix to check for consistency:");
+            String a = in.nextLine();
+            while (!temp.hasKey(a)) {
+                out.print(a + " doesn't exist. Enter a new name: ");
+                a = in.nextLine();
+            }
+
+            if (temp.value(a).isConsistent()) {
+                out.print(a + " is consistent.");
+            } else {
+                out.print(a + " is NOT consistent.");
+            }
+
+            out.print(" Enter to continue:");
+            in.nextLine();
+        } else {
+            out.print("You have no reduced matrices. Enter to continue:");
+            in.nextLine();
+        }
+
+    }
+
+    /**
      * Collects matrices from the user until they have at least n matrices.
      *
      * @param out
@@ -385,6 +436,7 @@ public final class UserMatrix {
             Map<String, Matrix<LinearDouble>> index, int n) {
         while (index.size() < n) {
             if (index.size() > 0) {
+                out.println("Current Matrices: ");
                 printMatrices(out, index);
             }
 
@@ -433,6 +485,7 @@ public final class UserMatrix {
 
             if (dex.size() > 0) {
                 clearTerminal(out);
+                out.println("Current Matrices: ");
                 printMatrices(out, dex);
             }
             out.println("To generate a new matrix, enter \"new\"");
@@ -442,6 +495,8 @@ public final class UserMatrix {
             out.println("To multiply by a constant, enter \"const\"");
             out.println("To add two Matrices, enter \"add\"");
             out.println("To print your current matrices, enter \"print\"");
+            out.println("To check if a reduced matrix is consistent,"
+                    + " enter \"consistent\" or \"check\"");
             out.println("To stop program, enter \"stop\"");
             out.println();
 
@@ -461,7 +516,10 @@ public final class UserMatrix {
             } else if (input.equals("add")) {
                 addMatrix(out, in, dex);
             } else if (input.equals("print")) {
+                out.println("Current Matrices: ");
                 printMatrices(out, dex);
+            } else if (input.equals("consistent") || input.equals("check")) {
+                consistentMatrix(out, in, dex);
             } else if (input.equals("stop")) {
                 out.print("Are you sure? (y/n): ");
                 input = in.nextLine().toLowerCase();
