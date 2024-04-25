@@ -1,7 +1,6 @@
 package components.matrix;
 
 import components.linear.Linear;
-import components.standard.Standard;
 
 /**
  * Matrix kernel component with primary methods.
@@ -15,8 +14,7 @@ import components.standard.Standard;
  *
  * @author Wesley Kamau
  */
-public interface MatrixKernel<T extends Linear<T>>
-        extends Standard<Matrix<T>>, Iterable<T> {
+public interface MatrixKernel<T extends Linear<T>> extends Iterable<T> {
 
     /**
      * Sets m, the number of rows.
@@ -72,5 +70,14 @@ public interface MatrixKernel<T extends Linear<T>>
      *            the element
      */
     void setElement(int i, int j, T element);
+
+    @Override
+    boolean equals(Object obj);
+
+    @Override
+    int hashCode();
+
+    @Override
+    String toString();
 
 }

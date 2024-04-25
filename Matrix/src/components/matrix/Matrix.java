@@ -2,6 +2,7 @@ package components.matrix;
 
 import components.linear.Linear;
 import components.simplewriter.SimpleWriter;
+import components.standard.Standard;
 
 /**
  * {@code Matrix<T>} enhanced with secondary methods.
@@ -13,7 +14,8 @@ import components.simplewriter.SimpleWriter;
  *
  * @author Wesley Kamau
  */
-public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
+public interface Matrix<T extends Linear<T>>
+        extends MatrixKernel<T>, Standard<Matrix<T>> {
 
     /**
      * Swaps row1 and row2.
@@ -55,15 +57,6 @@ public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
      * @return the number of left columns.
      */
     int leftColumns();
-
-    @Override
-    boolean equals(Object obj);
-
-    @Override
-    int hashCode();
-
-    @Override
-    String toString();
 
     /**
      * Prints this to the provided SimpleWriter.

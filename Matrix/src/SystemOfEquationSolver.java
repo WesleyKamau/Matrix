@@ -1,3 +1,6 @@
+import components.linear.LinearDouble;
+import components.matrix.Matrix;
+import components.matrix.Matrix2;
 import components.sequence.Sequence;
 import components.sequence.Sequence1L;
 import components.simplereader.SimpleReader;
@@ -7,7 +10,7 @@ import components.simplewriter.SimpleWriter1L;
 import components.utilities.FormatChecker;
 
 /**
- * Put a short phrase describing the program here.
+ * System of Equations solver using Matrix.
  *
  * @author Wesley Kamau
  *
@@ -61,10 +64,13 @@ public final class SystemOfEquationSolver {
 
         out.println();
 
-        Sequence<Sequence<Double>> tempEntries = new Sequence1L<Sequence<Double>>();
-        Sequence<Sequence<Double>> tempRightSide = new Sequence1L<Sequence<Double>>();
+        Matrix<LinearDouble> index = new Matrix2<LinearDouble>(
+                new LinearDouble(), equations, variables);
+
+        Matrix<LinearDouble> rightSide = new Matrix2<LinearDouble>(
+                new LinearDouble(), equations, 1);
+
         for (int i = 1; i <= equations; i++) {
-            Sequence<Double> row = new Sequence1L<Double>();
             for (int j = 0; j < variables; j++) {
                 out.print("Enter the value of " + variableNames.entry(j)
                         + " in equation " + i + ": ");
@@ -77,10 +83,9 @@ public final class SystemOfEquationSolver {
                     tempValue = in.nextLine();
                 }
                 value = Double.parseDouble(tempValue);
-                row.add(row.length(), value);
+                index.setElement(i, j + 1, new LinearDouble(value));
             }
 
-            tempEntries.add(tempEntries.length(), row);
             out.print("Enter the value of equation " + i + ": ");
             double value = 0;
             String tempValue = in.nextLine();
@@ -89,25 +94,24 @@ public final class SystemOfEquationSolver {
                 tempValue = in.nextLine();
             }
             value = Double.parseDouble(tempValue);
-            Sequence<Double> element = new Sequence1L<Double>();
-            element.add(0, value);
-            tempRightSide.add(tempRightSide.length(), element);
+            rightSide.setElement(i, 1, new LinearDouble(value));
 
             out.println();
         }
-        OldMatrix<Double> result = new OldMatrix<Double>(tempEntries);
-        OldMatrix<Double> rightSide = new OldMatrix<Double>(tempRightSide);
 
-        // result.print(out);
-        //rightSide.print(out);
-
-        OldMatrix<Double> reducedResult = OldMatrix.reduce(result.augment(rightSide));
-        //reducedResult.print(out);
+        /* Augment and Reduce */
+        Matrix<LinearDouble> reduced = index.augment(rightSide).reduce();
 
         out.println();
-        for (int i = 1; i <= variables; i++) {
-            out.println(variableNames.entry(i - 1) + " = "
-                    + reducedResult.element(i, reducedResult.columns()));
+
+        if (reduced.isConsistent()) {
+            for (int i = 1; i <= variables; i++) {
+                out.println(variableNames.entry(i - 1) + " = "
+                        + reduced.element(i, reduced.columns()));
+            }
+        } else {
+            out.println("The system has no solution.");
+            reduced.print(out);
         }
         /*
          * Close input and output streams

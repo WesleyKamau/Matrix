@@ -37,6 +37,14 @@ public abstract class MatrixSecondary<T extends Linear<T>>
             return false;
         }
 
+        if (this.isAugmented() != c.isAugmented()) {
+            return false;
+        } else {
+            if (this.leftColumns() != c.leftColumns()) {
+                return false;
+            }
+        }
+
         // We know that the matrices are of the same dimension, check for empty
         if (this.rows() == 0 || this.columns() == 0) {
             return true;
@@ -413,29 +421,7 @@ public abstract class MatrixSecondary<T extends Linear<T>>
      */
     @Override
     public boolean isRREF() {
-        boolean result = true;
-        for (int i = 1; i <= this.rows() && result; i++) {
-            boolean foundLeadingDigit = false;
-            for (int j = 1; j <= this.columns() && !foundLeadingDigit
-                    && result; j++) {
-                if (!this.element(i, j).isZero()) {
-                    foundLeadingDigit = true;
-                    if (!this.element(i, j).isOne()) {
-                        result = false;
-                    } else {
-                        for (int k = 1; k < this.rows(); k++) {
-                            if (k != j) {
-                                if (!this.element(k, j).isZero()) {
-                                    result = false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-        return result;
+        return this.equals(this.reduce());
     }
 
     @Override
