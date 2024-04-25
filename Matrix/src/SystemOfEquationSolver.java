@@ -95,13 +95,13 @@ public final class SystemOfEquationSolver {
 
             out.println();
         }
-        Matrix<Double> result = new Matrix<Double>(tempEntries);
-        Matrix<Double> rightSide = new Matrix<Double>(tempRightSide);
+        OldMatrix<Double> result = new OldMatrix<Double>(tempEntries);
+        OldMatrix<Double> rightSide = new OldMatrix<Double>(tempRightSide);
 
         // result.print(out);
         //rightSide.print(out);
 
-        Matrix<Double> reducedResult = Matrix.reduce(result.augment(rightSide));
+        OldMatrix<Double> reducedResult = OldMatrix.reduce(result.augment(rightSide));
         //reducedResult.print(out);
 
         out.println();
