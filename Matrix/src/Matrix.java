@@ -13,7 +13,7 @@ import components.simplewriter.SimpleWriter1L;
  *            the type being held by the matrix
  *
  */
-public final class Matrix<T> {
+public class Matrix<T> {
 
     /**
      * entries represented as a 2d array as a sequence.
@@ -318,6 +318,38 @@ public final class Matrix<T> {
             }
 
         }
+        return result;
+    }
+
+    /**
+     * Determines if a matrix is consistent.
+     *
+     * @param a
+     * @return
+     */
+    public static boolean isConsistent(Matrix<Double> a) {
+        assert a.augmented : "Violates: This must be an augmented matrix";
+
+        boolean result = true;
+        Matrix<Double> reduced = reduce(a);
+        /*
+         * For each of the rows, if the elements are all 0 but there is a
+         * nonzero coefficient on the right, the matrix is not consistent.
+         */
+        for (int i = 1; i <= reduced.rows(); i++) {
+            boolean rowIsZeroes = true;
+            for (int j = 1; j < reduced.columns(); j++) {
+                if (reduced.element(i, j) != 0.0) {
+                    rowIsZeroes = false;
+                }
+            }
+            if (rowIsZeroes) {
+                if (reduced.element(i, reduced.columns()) != 0.0) {
+                    result = false;
+                }
+            }
+        }
+
         return result;
     }
 
@@ -703,9 +735,12 @@ public final class Matrix<T> {
          * reducedAugmented.print(out);
          */
 
-        Matrix<Double> gauss = reduce(intToDouble(
+        Matrix<Double> temp = intToDouble(
                 new Matrix<Integer>(3, 4, 1, 2, 3, -1, 3, 5, 8, -2, 1, 1, 2, 0)
-                        .augment(new Matrix<Integer>(3, 1, 0, 0, 0))));
+                        .augment(new Matrix<Integer>(3, 1, 0, 0, 0)));
+
+        temp.print(out);
+        Matrix<Double> gauss = reduce(temp);
         gauss.print(out);
 
         /*

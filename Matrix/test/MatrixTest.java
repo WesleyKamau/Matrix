@@ -14,7 +14,12 @@ public class MatrixTest {
         Matrix<Integer> test1 = new Matrix<Integer>(2, 3, 1, 2, 3, 4, 5, 6);
         Matrix<Integer> test2 = new Matrix<Integer>(3, 2, 7, 8, 9, 10, 11, 12);
 
+        System.out.print(test1);
+        System.out.print(test2);
+
         Matrix<Integer> expected = new Matrix<Integer>(2, 2, 58, 64, 139, 154);
+
+        System.out.print(expected);
 
         assertEquals(expected, Matrix.multiply(test1, test2));
     }

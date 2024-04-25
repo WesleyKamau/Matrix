@@ -105,10 +105,17 @@ public final class SystemOfEquationSolver {
         //reducedResult.print(out);
 
         out.println();
-        for (int i = 1; i <= variables; i++) {
-            out.println(variableNames.entry(i - 1) + " = "
-                    + reducedResult.element(i, reducedResult.columns()));
+
+        if (Matrix.isConsistent(reducedResult)) {
+            for (int i = 1; i <= variables; i++) {
+                out.println(variableNames.entry(i - 1) + " = "
+                        + reducedResult.element(i, reducedResult.columns()));
+            }
+        } else {
+            out.println("The system has No Solution.");
         }
+
+        reducedResult.print(out);
         /*
          * Close input and output streams
          */
