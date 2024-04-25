@@ -1,6 +1,5 @@
 package components.matrix;
 
-import components.linear.Linear;
 import components.simplewriter.SimpleWriter;
 import components.standard.Standard;
 
@@ -14,7 +13,7 @@ import components.standard.Standard;
  *
  * @author Wesley Kamau
  */
-public interface SimpleMatrix<T extends Linear<T>>
+public interface SimpleMatrix<T>
         extends MatrixKernel<T>, Standard<SimpleMatrix<T>> {
 
     /**
@@ -33,7 +32,7 @@ public interface SimpleMatrix<T extends Linear<T>>
      * @param source
      *            the Matrix to copy from
      */
-    void copyFrom(Matrix<T> source);
+    void copyFrom(SimpleMatrix<T> source);
 
     /**
      * Prints this to the provided SimpleWriter.

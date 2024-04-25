@@ -1,8 +1,7 @@
 package components.matrix;
 
-import components.linear.Linear;
-import components.sequence.Sequence;
-import components.sequence.Sequence1L;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code Matrix} represented as a 2d array of sequences.
@@ -11,13 +10,12 @@ import components.sequence.Sequence1L;
  *            the type of entries in the matrix
  * @author Wesley Kamau
  */
-public final class SimpleMatrix2<T extends Linear<T>>
-        extends SimpleMatrixSecondary<T> {
+public final class SimpleMatrix1L<T> extends SimpleMatrixSecondary<T> {
 
     /**
-     * entries represented as a 2d array as a sequence.
+     * entries represented as a 2d array as a List.
      */
-    private Sequence<Sequence<T>> entries;
+    private List<List<T>> entries;
 
     /*
      * Constructors
@@ -29,46 +27,38 @@ public final class SimpleMatrix2<T extends Linear<T>>
      * @param source
      *            the source Matrix.
      */
-    public SimpleMatrix2(Matrix<T> source) {
-        Sequence<Sequence<T>> tempEntries = new Sequence1L<Sequence<T>>();
+    public SimpleMatrix1L(SimpleMatrix<T> source) {
+        List<List<T>> tempEntries = new ArrayList<List<T>>();
         for (int i = 1; i <= source.rows(); i++) {
-            Sequence<T> row = new Sequence1L<T>();
+            List<T> row = new ArrayList<T>();
             for (int j = 1; j <= source.columns(); j++) {
                 row.add(j - 1, source.element(i, j));
             }
-            tempEntries.add(tempEntries.length(), row);
+            tempEntries.add(tempEntries.size(), row);
         }
         this.entries = tempEntries;
     }
 
     /**
-     * Basic constructor.
-     *
-     * @param initial
-     *            an instance of T to call newInstance.
-     */
-    public SimpleMatrix2(T initial) {
-        this.entries = new Sequence1L<Sequence<T>>();
-        this.entries.add(0, new Sequence1L<T>());
-        this.entries.entry(0).add(0, initial.newInstance());
-    }
-
-    /**
      * Basic constructor with predetermined dimensions.
      *
-     * @param initial
-     *            an instance of T to call newInstance.
      * @param i
      *            the rows
      * @param j
      *            the columns
      */
-    public SimpleMatrix2(T initial, int i, int j) {
-        this.entries = new Sequence1L<Sequence<T>>();
-        this.entries.add(0, new Sequence1L<T>());
-        this.entries.entry(0).add(0, initial.newInstance());
+    public SimpleMatrix1L(int i, int j) {
+        this.entries = new ArrayList<List<T>>();
         this.setRows(i);
         this.setColumns(j);
+    }
+
+    /**
+     * Basic constructor.
+     *
+     */
+    public SimpleMatrix1L() {
+        this.createNewRep();
     }
 
     /**
@@ -82,21 +72,21 @@ public final class SimpleMatrix2<T extends Linear<T>>
      *            the elements of the matrix
      */
     @SafeVarargs
-    public SimpleMatrix2(int m, int n, T... elements) {
+    public SimpleMatrix1L(int m, int n, T... elements) {
         assert elements.length == (m
                 * n) : "Violation of: elements.length == m * n";
         assert m >= 1 : "Violation of: m is at least 1";
         assert n >= 1 : "Violation of: n is at least 1";
 
-        this.entries = new Sequence1L<Sequence<T>>();
+        this.entries = new ArrayList<List<T>>();
         int index = 0;
         for (int i = 0; i < m; i++) {
-            Sequence<T> row = new Sequence1L<T>();
+            List<T> row = new ArrayList<T>();
             for (int j = 0; j < n; j++) {
                 row.add(j, elements[index]);
                 index++;
             }
-            this.entries.add(this.entries.length(), row);
+            this.entries.add(this.entries.size(), row);
         }
     }
 
@@ -104,20 +94,7 @@ public final class SimpleMatrix2<T extends Linear<T>>
      * Creator of initial representation.
      */
     private void createNewRep() {
-        T tempT = this.newT();
-        this.entries = new Sequence1L<Sequence<T>>();
-        Sequence<T> row = new Sequence1L<>();
-        row.add(0, tempT);
-        this.entries.add(0, row);
-    }
-
-    /**
-     * Generates a new instance of T.
-     *
-     * @return the new instance of T
-     */
-    private T newT() {
-        return this.entries.entry(0).entry(0).newInstance();
+        this.entries = new ArrayList<List<T>>();
     }
 
     @Override
@@ -128,9 +105,9 @@ public final class SimpleMatrix2<T extends Linear<T>>
                 && row2 <= this.rows() : "Violation of: 1 <= row2 <= this.rows";
 
         if (row1 != row2) {
-            Sequence<T> temprow1 = this.entries.replaceEntry(row1 - 1,
-                    this.entries.entry(row2 - 1));
-            this.entries.replaceEntry(row2 - 1, temprow1);
+            List<T> temprow1 = this.entries.set(row1 - 1,
+                    this.entries.get(row2 - 1));
+            this.entries.set(row2 - 1, temprow1);
         }
 
     }
@@ -138,17 +115,19 @@ public final class SimpleMatrix2<T extends Linear<T>>
     @Override
     public void setRows(int rows) {
 
-        while (this.entries.length() != rows) {
-            if (this.entries.length() > rows) {
-                this.entries.remove(this.entries.length() - 1);
+        while (this.entries.size() != rows) {
+            if (this.entries.size() > rows) {
+                this.entries.remove(this.entries.size() - 1);
             }
 
             if (this.rows() < rows) {
-                Sequence<T> row = new Sequence1L<T>();
-                while (row.length() < this.entries.entry(0).length()) {
-                    row.add(row.length(), this.newT());
+                List<T> row = new ArrayList<T>();
+                if (this.entries.size() > 0) {
+                    while (row.size() < this.entries.get(0).size()) {
+                        row.add(row.size(), null);
+                    }
                 }
-                this.entries.add(this.entries.length(), row);
+                this.entries.add(this.entries.size(), row);
             }
         }
 
@@ -156,22 +135,20 @@ public final class SimpleMatrix2<T extends Linear<T>>
 
     @Override
     public int rows() {
-        return this.entries.length();
+        return this.entries.size();
     }
 
     @Override
     public void setColumns(int columns) {
 
-        for (int i = 0; i < this.entries.length(); i++) {
-            while (this.entries.entry(i).length() != columns) {
-                if (this.entries.entry(i).length() < columns) {
-                    this.entries.entry(i).add(this.entries.entry(i).length(),
-                            this.newT());
+        for (int i = 0; i < this.entries.size(); i++) {
+            while (this.entries.get(i).size() != columns) {
+                if (this.entries.get(i).size() < columns) {
+                    this.entries.get(i).add(this.entries.get(i).size(), null);
                 }
 
-                if (this.entries.entry(i).length() > columns) {
-                    this.entries.entry(i)
-                            .remove(this.entries.entry(i).length() - 1);
+                if (this.entries.get(i).size() > columns) {
+                    this.entries.get(i).remove(this.entries.get(i).size() - 1);
                 }
             }
         }
@@ -180,7 +157,10 @@ public final class SimpleMatrix2<T extends Linear<T>>
 
     @Override
     public int columns() {
-        return this.entries.entry(0).length();
+        if (this.entries.size() == 0) {
+            return 0;
+        }
+        return this.entries.get(0).size();
     }
 
     @Override
@@ -188,7 +168,7 @@ public final class SimpleMatrix2<T extends Linear<T>>
         assert i > 0 && i <= this.rows() && j > 0
                 && j <= this.columns() : "Violation of: index is in range";
 
-        return this.entries.entry(i - 1).entry(j - 1);
+        return this.entries.get(i - 1).get(j - 1);
     }
 
     @Override
@@ -196,26 +176,26 @@ public final class SimpleMatrix2<T extends Linear<T>>
         assert i >= 1 && i <= this.rows() : "Violation of: i is in range";
         assert j >= 1 && j <= this.columns() : "Violation of: j is in range";
 
-        this.entries.entry(i - 1).replaceEntry(j - 1, element);
+        this.entries.get(i - 1).set(j - 1, element);
     }
 
     @Override
     public SimpleMatrix<T> newInstance() {
-        return new SimpleMatrix2<T>(this.element(1, 1).newInstance());
+        return new SimpleMatrix1L<T>();
     }
 
     @Override
     public void transferFrom(SimpleMatrix<T> source) {
         assert source != null : "Violation of: source is not null";
         assert source != this : "Violation of: source is not this";
-        assert source instanceof SimpleMatrix2<?> : ""
+        assert source instanceof SimpleMatrix1L<?> : ""
                 + "Violation of: source is of dynamic type Set3<?>";
         /*
          * This cast cannot fail since the assert above would have stopped
          * execution in that case: source must be of dynamic type Set3a<?>, and
          * the ? must be T or the call would not have compiled.
          */
-        SimpleMatrix2<T> localSource = (SimpleMatrix2<T>) source;
+        SimpleMatrix1L<T> localSource = (SimpleMatrix1L<T>) source;
         this.entries = localSource.entries;
         localSource.createNewRep();
 

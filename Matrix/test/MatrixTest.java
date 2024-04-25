@@ -26,12 +26,6 @@ public abstract class MatrixTest {
      */
     protected abstract Matrix<LinearDouble> constructorTest(LinearDouble t);
 
-<<<<<<< HEAD
-        System.out.print(test1);
-        System.out.print(test2);
-
-        Matrix<Integer> expected = new Matrix<Integer>(2, 2, 58, 64, 139, 154);
-=======
     /**
      * Creates and returns a {@code Matrix<LinearDouble>} of the implementation
      * under test type with the given entries.
@@ -47,13 +41,7 @@ public abstract class MatrixTest {
     private Matrix<LinearDouble> createFromArgsTest(int rows, int columns,
             double[] entries) {
         assert entries.length <= rows * columns : "Incorrect dimension";
->>>>>>> branch 'main' of https://github.com/WesleyKamau/java-projects.git
 
-<<<<<<< HEAD
-        System.out.print(expected);
-
-        assertEquals(expected, Matrix.multiply(test1, test2));
-=======
         Matrix<LinearDouble> matrix = this.constructorTest(new LinearDouble());
 
         matrix.setRows(rows);
@@ -71,7 +59,6 @@ public abstract class MatrixTest {
 
         return matrix;
 
->>>>>>> branch 'main' of https://github.com/WesleyKamau/java-projects.git
     }
 
     /*
@@ -264,7 +251,7 @@ public abstract class MatrixTest {
         final int rows = 2;
         final int columns = 4;
 
-        final double[] testEntries = { 3, -2., -3., 3., 2., 3., 3., 2. };
+        final double[] testEntries = { -3, -2., -3., 3., 2., 3., 3., 2. };
         final double[] expectedEntries = { 1., 0., -3.0 / 13.0, 1., 0., 1.,
                 15.0 / 13.0, 0.0 };
 

@@ -1,7 +1,5 @@
 package components.matrix;
 
-import components.linear.Linear;
-
 /**
  * Matrix kernel component with primary methods.
  *
@@ -14,7 +12,7 @@ import components.linear.Linear;
  *
  * @author Wesley Kamau
  */
-public interface MatrixKernel<T extends Linear<T>> extends Iterable<T> {
+public interface MatrixKernel<T> extends Iterable<T> {
 
     /**
      * Sets m, the number of rows.

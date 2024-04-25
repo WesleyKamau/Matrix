@@ -3,7 +3,6 @@ package components.matrix;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import components.linear.Linear;
 import components.simplewriter.SimpleWriter;
 
 /**
@@ -14,8 +13,7 @@ import components.simplewriter.SimpleWriter;
  *
  * @author Wesley Kamau
  */
-public abstract class SimpleMatrixSecondary<T extends Linear<T>>
-        implements SimpleMatrix<T> {
+public abstract class SimpleMatrixSecondary<T> implements SimpleMatrix<T> {
 
     /*
      * Common methods (from Object) -------------------------------------------
@@ -208,7 +206,7 @@ public abstract class SimpleMatrixSecondary<T extends Linear<T>>
     }
 
     @Override
-    public final void copyFrom(Matrix<T> source) {
+    public final void copyFrom(SimpleMatrix<T> source) {
         this.clear();
         this.setColumns(source.columns());
         this.setRows(source.rows());
