@@ -439,6 +439,41 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     }
 
     @Override
+    public final boolean isConsistent() {
+        assert this.isRREF() : "Violation of: this.isRREF";
+
+        boolean result = true;
+        int leadingColumn = 0;
+
+        for (int i = 1; i <= this.rows() && result; i++) {
+            /*
+             * Check all of the columns in this row up to the last leading row
+             * to make sure it is zero
+             */
+            for (int j = 1; j <= leadingColumn; j++) {
+                if (!this.element(i, j).isZero()) {
+                    result = false;
+                }
+            }
+
+            /*
+             * Starting from the last leading column, find the first nonzero
+             * term in that row.
+             */
+            boolean foundNonZero = false;
+            for (int j = leadingColumn + 1; j <= this.columns()
+                    && !foundNonZero; j++) {
+                if (!this.element(i, j).isZero()) {
+                    foundNonZero = true;
+                    leadingColumn = j;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public final void copyFrom(Matrix<T> source) {
         this.clear();
         this.setColumns(source.columns());

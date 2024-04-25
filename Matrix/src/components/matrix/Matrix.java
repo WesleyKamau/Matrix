@@ -146,4 +146,13 @@ public interface Matrix<T extends Linear<T>> extends MatrixKernel<T> {
      */
     boolean isRREF();
 
+    /**
+     * Determines if this is a Matrix representing a System of Equations that is
+     * consistent.
+     *
+     * @requires this.isRREF
+     * @return true if this is consistent.
+     */
+    boolean isConsistent();
+
 }
