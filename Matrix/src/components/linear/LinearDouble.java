@@ -125,8 +125,14 @@ public final class LinearDouble implements Linear<LinearDouble> {
     public String toString() {
         double temp = this.value;
 
-        while (temp >= 1.0) {
-            temp -= 1.0;
+        if (temp > 0.0) {
+            while (temp >= 1.0) {
+                temp -= 1.0;
+            }
+        } else {
+            while (temp <= -1.0) {
+                temp += 1.0;
+            }
         }
 
         if (Math.abs(temp) < EPSILON) {
@@ -162,6 +168,24 @@ public final class LinearDouble implements Linear<LinearDouble> {
     @Override
     public boolean isOne() {
         return Math.abs(this.value - 1) < EPSILON;
+    }
+
+    /**
+     * Determines if the value of this is positive.
+     *
+     * @return true if this is positive.
+     */
+    public boolean isPositive() {
+        return this.value >= 0;
+    }
+
+    /**
+     * Determines if the value of this is -1.
+     *
+     * @return true if this is -1.
+     */
+    public boolean isNegativeOne() {
+        return Double.compare(this.value, -1.0) == 0;
     }
 
 }
