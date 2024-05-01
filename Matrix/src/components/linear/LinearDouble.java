@@ -21,6 +21,16 @@ public final class LinearDouble implements Linear<LinearDouble> {
     }
 
     /**
+     * Constructs a LinearDouble object with the specified value.
+     *
+     * @param value
+     *            The value of the LinearDouble object.
+     */
+    public LinearDouble(LinearDouble value) {
+        this.value = value.value;
+    }
+
+    /**
      * Basic constructor.
      */
     public LinearDouble() {
@@ -37,6 +47,14 @@ public final class LinearDouble implements Linear<LinearDouble> {
     @Override
     public LinearDouble add(LinearDouble other) {
         LinearDouble result = new LinearDouble(this.value + other.value);
+        if (result.isZero()) {
+            result = new LinearDouble(0.0);
+        }
+        return result;
+    }
+
+    public LinearDouble add(Double other) {
+        LinearDouble result = new LinearDouble(this.value + other);
         if (result.isZero()) {
             result = new LinearDouble(0.0);
         }
