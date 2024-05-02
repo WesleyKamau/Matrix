@@ -56,7 +56,7 @@ public final class Determinant {
                     }
                 }
 
-                result.add(determinant(temp).constant(coefficient)
+                result = result.add(determinant(temp).constant(coefficient)
                         .multiply(dex.element(1, i)));
                 coefficient *= -1;
 
@@ -80,25 +80,22 @@ public final class Determinant {
         Matrix<LinearVariable> dex = new Matrix2<LinearVariable>(
                 new LinearVariable());
 
-        dex.setColumns(4);
-        dex.setRows(4);
+        dex.setColumns(10);
+        dex.setRows(10);
 
         for (int i = 1; i <= dex.rows(); i++) {
             for (int j = 1; j <= dex.columns(); j++) {
                 if (i == j) {
-                    LinearVariable temp = new LinearVariable();
-                    temp.add("λ", -1.0);
-                    temp.add(1.0);
-                    dex.setElement(i, j, temp);
+                    dex.setElement(i, j,
+                            new LinearVariable().add("λ", -1.0).add(1.0));
                 } else {
-                    LinearVariable temp = new LinearVariable();
-                    temp.add(-1.0);
-                    dex.setElement(i, j, temp);
+                    dex.setElement(i, j, new LinearVariable().add(-1.0));
                 }
             }
         }
 
-        out.print(determinant(dex));
+        dex.print(out);
+        out.print("The determinant is: " + determinant(dex));
         //dex.print(out);
 
         /*

@@ -53,6 +53,13 @@ public final class LinearDouble implements Linear<LinearDouble> {
         return result;
     }
 
+    /**
+     * Adds other to this and returns the result.
+     *
+     * @param other
+     *            the other LinearDouble
+     * @return this + other
+     */
     public LinearDouble add(Double other) {
         LinearDouble result = new LinearDouble(this.value + other);
         if (result.isZero()) {
