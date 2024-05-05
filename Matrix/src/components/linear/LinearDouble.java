@@ -213,4 +213,8 @@ public final class LinearDouble implements Linear<LinearDouble> {
         return Double.compare(this.value, -1.0) == 0;
     }
 
+    public double value() {
+        return this.value;
+    }
+
 }

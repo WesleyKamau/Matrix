@@ -8,6 +8,8 @@ import components.map.Map1L;
 
 /**
  * Linear system represented as an double.
+ *
+ * @author Wesley Kamau
  */
 public final class LinearVariable implements Linear<LinearVariable> {
 
@@ -23,12 +25,12 @@ public final class LinearVariable implements Linear<LinearVariable> {
      * Each Map.Pair : value represents: <String, Map<Integer,LinearDouble> =
      * LinearDouble(String)^Integer
      */
-    private Map<String, Map<Integer, LinearDouble>> value;
+    public Map<String, Map<Integer, LinearDouble>> value;
 
     /**
      * Nonvariable value as a LinearDouble.
      */
-    private LinearDouble num;
+    public LinearDouble num;
 
     /*
      * Constructors ------------------------------------------------------------
@@ -49,7 +51,7 @@ public final class LinearVariable implements Linear<LinearVariable> {
      * @param num
      *            the numeric value
      */
-    public LinearVariable(Map<String, Map<Integer, LinearDouble>> newMap,
+    private LinearVariable(Map<String, Map<Integer, LinearDouble>> newMap,
             LinearDouble num) {
         this.value = newMap;
         this.num = num;
@@ -94,70 +96,48 @@ public final class LinearVariable implements Linear<LinearVariable> {
         /*
          * Copy over the contents of this.value to a new Map
          */
-        Map<String, Map<Integer, LinearDouble>> newMap = new Map1L<String, Map<Integer, LinearDouble>>();
-        ;
+        LinearVariable result = new LinearVariable();
 
         for (Map.Pair<String, Map<Integer, LinearDouble>> element : this.value) {
-            Map<Integer, LinearDouble> variableMap = new Map1L<Integer, LinearDouble>();
             if (other.value.hasKey(element.key())) {
                 // Handles all of the variables in both LinearVariables
-
                 for (Map.Pair<Integer, LinearDouble> variable : element
                         .value()) {
-                    if (other.value.value(element.key())
-                            .hasKey(variable.key())) {
-                        /*
-                         * Case for when the exponent value for the variable is
-                         * present in both LinearVariables
-                         */
-
-                        variableMap.add(variable.key(),
-                                variable.value()
-                                        .add(other.value.value(element.key())
-                                                .value(variable.key())));
-                    } else {
-                        /*
-                         * Case for when the exponent value is only in this
-                         */
-
-                        variableMap.add(variable.key(), variable.value());
-                    }
+                    result = result.add(element.key(), variable.value(),
+                            variable.key());
                 }
-
                 for (Map.Pair<Integer, LinearDouble> variable : other.value
                         .value(element.key())) {
                     if (!element.value().hasKey(variable.key())) {
                         /*
                          * Case for when the exponent value is only in other
                          */
-
-                        variableMap.add(variable.key(), variable.value());
+                        result = result.add(element.key(), variable.value(),
+                                variable.key());
                     }
                 }
-
             } else {
                 // Handles all of the variables only in this
                 for (Map.Pair<Integer, LinearDouble> variable : element
                         .value()) {
-                    variableMap.add(variable.key(), variable.value());
+                    result = result.add(element.key(), variable.value(),
+                            variable.key());
                 }
             }
-            newMap.add(element.key(), variableMap);
         }
-
         for (Map.Pair<String, Map<Integer, LinearDouble>> element : other.value) {
             if (!this.value.hasKey(element.key())) {
                 // Handles all of the variables only in other
-                Map<Integer, LinearDouble> variableMap = new Map1L<Integer, LinearDouble>();
                 for (Map.Pair<Integer, LinearDouble> variable : element
                         .value()) {
-                    variableMap.add(variable.key(), variable.value());
+                    result = result.add(element.key(), variable.value(),
+                            variable.key());
                 }
-                newMap.add(element.key(), variableMap);
             }
         }
+        result = result.add(this.num.add(other.num));
 
-        return new LinearVariable(newMap, this.num.add(other.num));
+        return result;
     }
 
     @Override
@@ -238,6 +218,9 @@ public final class LinearVariable implements Linear<LinearVariable> {
             if (!(exponent.value().isOne()
                     || exponent.value().isNegativeOne())) {
                 result += exponent.value() + "*";
+            }
+            if (exponent.value().isNegativeOne()) {
+                result += "-";
             }
             result += name;
             if (exponent.key() != 1) {
@@ -507,7 +490,7 @@ public final class LinearVariable implements Linear<LinearVariable> {
      *
      * @ensures add = this + ( value * name )
      */
-    public LinearVariable add(String name, Double value) {
+    public LinearVariable add(String name, LinearDouble value) {
         /*
          * Copy over the contents of this.value to a new Map
          */
@@ -581,7 +564,50 @@ public final class LinearVariable implements Linear<LinearVariable> {
      *
      * @ensures add = this + ( value * ( name ^ exponent ) )
      */
-    public LinearVariable add(String name, Double value, int exponent) {
+    public LinearVariable add(String name, double value, int exponent) {
+        /*
+         * Copy over the contents of this.value to a new Map
+         */
+        Map<String, Map<Integer, LinearDouble>> newMap = this.copyValue();
+        LinearDouble tempNum = new LinearDouble(this.num);
+
+        if (exponent != 0) {
+            // Case for when the variable already exists in the LinearVariable
+            if (newMap.hasKey(name)) {
+                Map.Pair<String, Map<Integer, LinearDouble>> index = newMap
+                        .remove(name);
+                if (index.value().hasKey(exponent)) {
+                    index.value().replaceValue(exponent,
+                            index.value().value(exponent).add(value));
+                } else {
+                    index.value().add(exponent, new LinearDouble(value));
+                }
+                newMap.add(name, index.value());
+            } else {
+                Map<Integer, LinearDouble> temp = new Map1L<Integer, LinearDouble>();
+                temp.add(exponent, new LinearDouble(value));
+                newMap.add(name, temp);
+            }
+        } else {
+            tempNum = tempNum.add(value);
+        }
+
+        return new LinearVariable(newMap, tempNum);
+    }
+
+    /**
+     * Add a variable and value to this.
+     *
+     * @param name
+     *            the Variable to be added
+     * @param value
+     *            the value of the variable being added
+     * @param exponent
+     *            the exponent value of the variable being added.
+     *
+     * @ensures add = this + ( value * ( name ^ exponent ) )
+     */
+    public LinearVariable add(String name, LinearDouble value, int exponent) {
         /*
          * Copy over the contents of this.value to a new Map
          */
@@ -624,4 +650,32 @@ public final class LinearVariable implements Linear<LinearVariable> {
                 this.num.add(new LinearDouble(value)));
     }
 
+    /**
+     * Add a value to this.
+     *
+     * @param value
+     *            the value being added
+     * @return this + value
+     */
+    public LinearVariable add(LinearDouble value) {
+        return new LinearVariable(this.copyValue(), this.num.add(value));
+    }
+
+    public LinearDouble set(double value) {
+        assert this.value.size() <= 1 : "Violation of: There is one variable";
+
+        LinearDouble result = new LinearDouble().add(this.num);
+        if (this.value.size() > 0) {
+            Pair<String, Map<Integer, LinearDouble>> tempValue = this
+                    .copyValue().removeAny();
+
+            for (Map.Pair<Integer, LinearDouble> power : tempValue.value()) {
+                result = result.add(power.value().multiply(
+                        new LinearDouble(Math.pow(value, power.key()))));
+            }
+        }
+
+        return result;
+
+    }
 }
