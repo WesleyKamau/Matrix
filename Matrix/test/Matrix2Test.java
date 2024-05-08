@@ -9,7 +9,7 @@ public class Matrix2Test extends MatrixTest {
 
     @Override
     protected final Matrix<LinearDouble> constructorTest(LinearDouble t) {
-        return new Matrix2<LinearDouble>(t.newInstance());
+        return new Matrix2<LinearDouble>();
     }
 
 }

@@ -64,11 +64,9 @@ public final class SystemOfEquationSolver {
 
         out.println();
 
-        Matrix<LinearDouble> index = new Matrix2<LinearDouble>(
-                new LinearDouble(), equations, variables);
+        Matrix<LinearDouble> index = new Matrix2<LinearDouble>();
 
-        Matrix<LinearDouble> rightSide = new Matrix2<LinearDouble>(
-                new LinearDouble(), equations, 1);
+        Matrix<LinearDouble> rightSide = new Matrix2<LinearDouble>();
 
         for (int i = 1; i <= equations; i++) {
             for (int j = 0; j < variables; j++) {

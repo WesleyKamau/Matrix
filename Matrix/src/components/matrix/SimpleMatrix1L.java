@@ -40,20 +40,6 @@ public final class SimpleMatrix1L<T> extends SimpleMatrixSecondary<T> {
     }
 
     /**
-     * Basic constructor with predetermined dimensions.
-     *
-     * @param i
-     *            the rows
-     * @param j
-     *            the columns
-     */
-    public SimpleMatrix1L(int i, int j) {
-        this.entries = new ArrayList<List<T>>();
-        this.setRows(i);
-        this.setColumns(j);
-    }
-
-    /**
      * Basic constructor.
      *
      */
@@ -113,46 +99,8 @@ public final class SimpleMatrix1L<T> extends SimpleMatrixSecondary<T> {
     }
 
     @Override
-    public void setRows(int rows) {
-
-        while (this.entries.size() != rows) {
-            if (this.entries.size() > rows) {
-                this.entries.remove(this.entries.size() - 1);
-            }
-
-            if (this.rows() < rows) {
-                List<T> row = new ArrayList<T>();
-                if (this.entries.size() > 0) {
-                    while (row.size() < this.entries.get(0).size()) {
-                        row.add(row.size(), null);
-                    }
-                }
-                this.entries.add(this.entries.size(), row);
-            }
-        }
-
-    }
-
-    @Override
     public int rows() {
         return this.entries.size();
-    }
-
-    @Override
-    public void setColumns(int columns) {
-
-        for (int i = 0; i < this.entries.size(); i++) {
-            while (this.entries.get(i).size() != columns) {
-                if (this.entries.get(i).size() < columns) {
-                    this.entries.get(i).add(this.entries.get(i).size(), null);
-                }
-
-                if (this.entries.get(i).size() > columns) {
-                    this.entries.get(i).remove(this.entries.get(i).size() - 1);
-                }
-            }
-        }
-
     }
 
     @Override
@@ -173,10 +121,32 @@ public final class SimpleMatrix1L<T> extends SimpleMatrixSecondary<T> {
 
     @Override
     public void setElement(int i, int j, T element) {
-        assert i >= 1 && i <= this.rows() : "Violation of: i is in range";
-        assert j >= 1 && j <= this.columns() : "Violation of: j is in range";
+        assert i >= 1 && i <= this.rows() + 1 : "Violation of: i is in range";
+        assert j >= 1
+                && j <= this.columns() + 1 : "Violation of: j is in range";
 
-        this.entries.get(i - 1).set(j - 1, element);
+        if ((i == this.rows() + 1) && (j == this.columns() + 1)) {
+            List<T> row = new ArrayList<T>();
+            for (int count = 1; count <= this.columns(); count++) {
+                row.add(count - 1, null);
+            }
+            row.add(j - 1, element);
+            this.entries.add(i - 1, row);
+        } else if (i == this.rows() + 1) {
+            List<T> row = new ArrayList<T>();
+            for (int count = 1; count <= this.columns(); count++) {
+                if (count == j) {
+                    row.add(count - 1, element);
+                } else {
+                    row.add(count - 1, null);
+                }
+            }
+            this.entries.add(i - 1, row);
+        } else if (j == this.columns() + 1) {
+            this.entries.get(i - 1).add(j - 1, element);
+        } else {
+            this.entries.get(i - 1).set(j - 1, element);
+        }
     }
 
     @Override

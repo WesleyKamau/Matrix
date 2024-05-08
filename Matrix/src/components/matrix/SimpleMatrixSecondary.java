@@ -208,8 +208,6 @@ public abstract class SimpleMatrixSecondary<T> implements SimpleMatrix<T> {
     @Override
     public final void copyFrom(SimpleMatrix<T> source) {
         this.clear();
-        this.setColumns(source.columns());
-        this.setRows(source.rows());
 
         for (int i = 1; i <= source.rows(); i++) {
             for (int j = 1; j <= source.columns(); j++) {

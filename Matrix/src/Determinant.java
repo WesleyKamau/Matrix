@@ -39,10 +39,7 @@ public final class Determinant {
         } else if (dex.rows() > 2) {
             int coefficient = 1;
             for (int i = 1; i <= dex.rows(); i++) {
-                Matrix<LinearVariable> temp = new Matrix2<LinearVariable>(
-                        new LinearVariable());
-                temp.setColumns(dex.columns() - 1);
-                temp.setRows(dex.rows() - 1);
+                Matrix<LinearVariable> temp = new Matrix2<LinearVariable>();
 
                 int icount = 1;
                 for (int i2 = 1; i2 <= dex.rows(); i2++) {
@@ -129,18 +126,12 @@ public final class Determinant {
 
         System.out.print(tempMatrix.reduce());
 
-        result.setRows(equation.rows());
-        result.setColumns(1);
-
         return result;
     }
 
     private static Matrix<LinearDouble> set(Matrix<LinearVariable> matrix,
             double value) {
-        Matrix<LinearDouble> result = new Matrix2<LinearDouble>(
-                new LinearDouble());
-        result.setRows(matrix.rows());
-        result.setColumns(matrix.columns());
+        Matrix<LinearDouble> result = new Matrix2<LinearDouble>();
         for (int i = 1; i <= matrix.rows(); i++) {
             for (int j = 1; j <= matrix.columns(); j++) {
                 result.setElement(i, j, matrix.element(i, j).set(value));
@@ -187,14 +178,10 @@ public final class Determinant {
         SimpleReader in = new SimpleReader1L();
         SimpleWriter out = new SimpleWriter1L();
 
-        Matrix<LinearVariable> dex = new Matrix1L<LinearVariable>(
-                new LinearVariable());
+        Matrix<LinearVariable> dex = new Matrix2<LinearVariable>();
 
-        dex.setColumns(3);
-        dex.setRows(3);
-
-        for (int i = 1; i <= dex.rows(); i++) {
-            for (int j = 1; j <= dex.columns(); j++) {
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 1; j <= 4; j++) {
                 if (i == j) {
                     dex.setElement(i, j,
                             new LinearVariable().add("λ", -1.0).add(1.0));
@@ -208,11 +195,7 @@ public final class Determinant {
         out.println("The determinant is: " + determinant(dex));
         //dex.print(out);
 
-        Matrix<LinearVariable> dex2 = new Matrix1L<LinearVariable>(
-                new LinearVariable());
-
-        dex2.setColumns(2);
-        dex2.setRows(2);
+        Matrix<LinearVariable> dex2 = new Matrix2<LinearVariable>();
 
         dex2.setElement(1, 1, new LinearVariable().add(16).add("λ", -1));
         dex2.setElement(1, 2, new LinearVariable().add(6));

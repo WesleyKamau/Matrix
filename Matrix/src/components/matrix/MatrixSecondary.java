@@ -222,20 +222,19 @@ public abstract class MatrixSecondary<T extends Linear<T>>
         Matrix<T> result = this.newInstance();
         result.copyFrom(this);
         int lead = 0;
-        int rowCount = result.rows();
-        int columnCount = result.columns();
 
-        for (int r = 0; r < rowCount; r++) {
-            if (columnCount <= lead) {
+        for (int r = 0; r < this.rows(); r++) {
+            if (this.columns() <= lead) {
                 break;
             }
             int i = r;
-            while (i < rowCount && result.element(i + 1, lead + 1).isZero()) {
+            while (i < this.rows()
+                    && result.element(i + 1, lead + 1).isZero()) {
                 i++;
-                if (i == rowCount) {
+                if (i == this.rows()) {
                     i = r;
                     lead++;
-                    if (columnCount == lead) {
+                    if (this.columns() == lead) {
                         return result;
                     }
                 }
@@ -245,22 +244,25 @@ public abstract class MatrixSecondary<T extends Linear<T>>
             result.swapRows(r + 1, i + 1);
 
             T lv = result.element(r + 1, lead + 1);
-            for (int j = 0; j < columnCount; j++) {
+            for (int j = 0; j < this.columns(); j++) {
                 result.setElement(r + 1, j + 1,
                         result.element(r + 1, j + 1).divide(lv));
             }
 
-            for (int i1 = 0; i1 < rowCount; i1++) {
+            for (int i1 = 0; i1 < this.rows(); i1++) {
                 if (i1 != r) {
                     T l = result.element(i1 + 1, lead + 1);
-                    for (int j = 0; j < columnCount; j++) {
+                    for (int j = 0; j < this.columns(); j++) {
+                        // Subtract the multiple of the leading row from the current row
+                        T multiple = l.constant(-1)
+                                .multiply(result.element(r + 1, j + 1));
+                        T currentElement = result.element(i1 + 1, j + 1);
                         result.setElement(i1 + 1, j + 1,
-                                result.element(i1 + 1, j + 1)
-                                        .add(l.constant(-1).multiply(
-                                                result.element(r + 1, j + 1))));
+                                currentElement.add(multiple));
                     }
                 }
             }
+
             lead++;
         }
 
@@ -277,8 +279,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     @Override
     public Matrix<T> multiply(int c) {
         Matrix<T> result = this.newInstance();
-        result.setColumns(this.columns());
-        result.setRows(this.rows());
         for (int i = 1; i <= this.rows(); i++) {
             for (int j = 1; j <= this.columns(); j++) {
                 result.setElement(i, j, this.element(i, j).constant(c));
@@ -297,8 +297,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     @Override
     public Matrix<T> multiply(double c) {
         Matrix<T> result = this.newInstance();
-        result.setColumns(this.columns());
-        result.setRows(this.rows());
         for (int i = 1; i <= this.rows(); i++) {
             for (int j = 1; j <= this.columns(); j++) {
                 result.setElement(i, j, this.element(i, j).constant(c));
@@ -322,9 +320,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                 .rows() : "Violation of: cols(this) == rows(a)";
 
         Matrix<T> result = this.newInstance();
-        result.setColumns(a.columns());
-        result.setRows(this.rows());
-
         for (int i = 1; i <= this.rows(); i++) {
             for (int j = 1; j <= a.columns(); j++) {
                 for (int k = 1; k <= this.columns(); k++) {
@@ -368,8 +363,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                 .rows() : "Violation of: this.rows() == b.rows()";
 
         Matrix<T> result = this.newInstance();
-        result.setColumns(this.columns() + b.columns());
-        result.setRows(this.rows());
 
         for (int i = 1; i <= this.rows(); i++) {
             int count = 1;
@@ -400,8 +393,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                 .columns() : "Violation of: a and this are the same size";
 
         Matrix<T> result = this.newInstance();
-        result.setColumns(this.columns());
-        result.setRows(this.rows());
 
         for (int i = 1; i <= this.rows(); i++) {
             for (int j = 1; j <= this.columns(); j++) {
@@ -462,8 +453,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
     @Override
     public final void copyFrom(Matrix<T> source) {
         this.clear();
-        this.setColumns(source.columns());
-        this.setRows(source.rows());
         if (source.isAugmented()) {
             this.setAugmented(source.leftColumns());
         }

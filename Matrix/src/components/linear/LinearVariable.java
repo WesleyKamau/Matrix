@@ -103,8 +103,17 @@ public final class LinearVariable implements Linear<LinearVariable> {
                 // Handles all of the variables in both LinearVariables
                 for (Map.Pair<Integer, LinearDouble> variable : element
                         .value()) {
-                    result = result.add(element.key(), variable.value(),
-                            variable.key());
+                    if (other.value.value(element.key())
+                            .hasKey(variable.key())) {
+                        result = result.add(element.key(),
+                                variable.value()
+                                        .add(other.value.value(element.key())
+                                                .value(variable.key())),
+                                variable.key());
+                    } else {
+                        result = result.add(element.key(), variable.value(),
+                                variable.key());
+                    }
                 }
                 for (Map.Pair<Integer, LinearDouble> variable : other.value
                         .value(element.key())) {

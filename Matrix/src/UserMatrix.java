@@ -1,4 +1,5 @@
 import components.linear.LinearDouble;
+import components.linear.LinearInteger;
 import components.map.Map;
 import components.map.Map1L;
 import components.matrix.Matrix;
@@ -18,6 +19,25 @@ import components.utilities.FormatChecker;
 public final class UserMatrix {
 
     /**
+     * Enum representing the different kinds of Linear Variables.
+     */
+    enum Kind {
+        /**
+         * Enum representing the different kinds of Linear Variables.
+         */
+        Double, Integer, NaturalNumber, Variable
+    }
+
+    private static boolean isEnum(String s) {
+        for (Kind temp : Kind.values()) {
+            if (temp.toString().equals(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * No argument constructor--private to prevent instantiation.
      */
     private UserMatrix() {
@@ -32,8 +52,7 @@ public final class UserMatrix {
      *            the console
      * @return the Matrix
      */
-    private static Matrix<LinearDouble> getUserMatrix(SimpleReader in,
-            SimpleWriter out) {
+    private static Matrix<?> getUserMatrix(SimpleReader in, SimpleWriter out) {
         out.print("Enter how many rows: ");
         String tempVariables = in.nextLine();
         while (!FormatChecker.canParseInt(tempVariables)
@@ -52,26 +71,71 @@ public final class UserMatrix {
         }
         int columns = Integer.parseInt(tempVariables);
 
-        Matrix<LinearDouble> result = new Matrix2<LinearDouble>(
-                new LinearDouble(), rows, columns);
+        out.print("What kind of Linear variable: ");
+        tempVariables = in.nextLine();
+        while (!isEnum(tempVariables)) {
+            out.print("Error. Enter the kind of Linear variable: ");
+            tempVariables = in.nextLine();
+        }
+        Kind variableKind = Kind.valueOf(tempVariables);
 
-        for (int i = 1; i <= rows; i++) {
-            for (int j = 1; j <= columns; j++) {
+        switch (variableKind) {
+            case Double: {
+                Matrix<LinearDouble> result = new Matrix2<LinearDouble>();
 
-                out.print("Enter the element (" + i + ", " + j + "): ");
-                tempVariables = in.nextLine();
-                while (!FormatChecker.canParseDouble(tempVariables)) {
-                    out.print("Error. Enter the element (" + i + ", " + j
-                            + "): ");
-                    tempVariables = in.nextLine();
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!FormatChecker.canParseDouble(tempVariables)) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j, new LinearDouble(
+                                Double.parseDouble(tempVariables)));
+
+                    }
                 }
-                result.setElement(i, j,
-                        new LinearDouble(Double.parseDouble(tempVariables)));
 
+                return result;
+            }
+            case Integer: {
+                Matrix<LinearInteger> result = new Matrix2<LinearInteger>();
+
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!FormatChecker.canParseInt(tempVariables)) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j, new LinearDouble(
+                                Double.parseInt(tempVariables)));
+
+                    }
+                }
+
+                return result;
+            }
+            case NaturalNumber: {
+                Matrix<LinearDouble> result = new Matrix2<LinearDouble>();
+                break;
+            }
+            case Variable: {
+                Matrix<LinearDouble> result = new Matrix2<LinearDouble>();
+                break;
+            }
+            default: {
+                break;
             }
         }
 
-        return result;
+        return null;
 
     }
 
@@ -79,7 +143,7 @@ public final class UserMatrix {
      * Prints out all of the matrices in the index.
      *
      * @param out
-     *            the ouptu stream
+     *            the output stream
      * @param index
      *            the Map containing all the Matrices and their names.
      */

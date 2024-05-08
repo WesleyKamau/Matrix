@@ -15,29 +15,11 @@ package components.matrix;
 public interface MatrixKernel<T> extends Iterable<T> {
 
     /**
-     * Sets m, the number of rows.
-     *
-     * @param rows
-     *            the number of rows
-     *
-     */
-    void setRows(int rows);
-
-    /**
      * Returns m, the number of rows.
      *
      * @return the number of rows
      */
     int rows();
-
-    /**
-     * Sets n, the number of columns.
-     *
-     * @param columns
-     *            the number of columns
-     *
-     */
-    void setColumns(int columns);
 
     /**
      * Returns n, the number of columns.
@@ -53,6 +35,8 @@ public interface MatrixKernel<T> extends Iterable<T> {
      *            the row
      * @param j
      *            the column
+     * @requires 1 <= i <= this.rows
+     * @requires 1 <= j <= this.columns
      * @return the element
      */
     T element(int i, int j);
@@ -66,16 +50,9 @@ public interface MatrixKernel<T> extends Iterable<T> {
      *            the column
      * @param element
      *            the element
+     * @requires 1 <= i <= this.rows + 1
+     * @requires 1 <= j <= this.columns + 1
      */
     void setElement(int i, int j, T element);
-
-    @Override
-    boolean equals(Object obj);
-
-    @Override
-    int hashCode();
-
-    @Override
-    String toString();
 
 }
