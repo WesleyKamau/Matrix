@@ -60,35 +60,11 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
     /**
      * Basic constructor.
      *
-     * @param initial
-     *            an instance of T to call newInstance.
      */
-    public Matrix2(T initial) {
+    public Matrix2() {
         this.augmented = false;
         this.leftcolumns = 0;
         this.entries = new Sequence1L<Sequence<T>>();
-        this.entries.add(0, new Sequence1L<T>());
-        this.entries.entry(0).add(0, initial.newInstance());
-    }
-
-    /**
-     * Basic constructor with predetermined dimensions.
-     *
-     * @param initial
-     *            an instance of T to call newInstance.
-     * @param i
-     *            the rows
-     * @param j
-     *            the columns
-     */
-    public Matrix2(T initial, int i, int j) {
-        this.augmented = false;
-        this.leftcolumns = 0;
-        this.entries = new Sequence1L<Sequence<T>>();
-        this.entries.add(0, new Sequence1L<T>());
-        this.entries.entry(0).add(0, initial.newInstance());
-        this.setRows(i);
-        this.setColumns(j);
     }
 
     /**
@@ -126,11 +102,7 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
      * Creator of initial representation.
      */
     private void createNewRep() {
-        T tempT = this.newT();
         this.entries = new Sequence1L<Sequence<T>>();
-        Sequence<T> row = new Sequence1L<>();
-        row.add(0, tempT);
-        this.entries.add(0, row);
         this.augmented = false;
         this.leftcolumns = 0;
 
@@ -161,51 +133,16 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
     }
 
     @Override
-    public void setRows(int rows) {
-
-        while (this.entries.length() != rows) {
-            if (this.entries.length() > rows) {
-                this.entries.remove(this.entries.length() - 1);
-            }
-
-            if (this.rows() < rows) {
-                Sequence<T> row = new Sequence1L<T>();
-                while (row.length() < this.entries.entry(0).length()) {
-                    row.add(row.length(), this.newT());
-                }
-                this.entries.add(this.entries.length(), row);
-            }
-        }
-
-    }
-
-    @Override
     public int rows() {
         return this.entries.length();
     }
 
     @Override
-    public void setColumns(int columns) {
-
-        for (int i = 0; i < this.entries.length(); i++) {
-            while (this.entries.entry(i).length() != columns) {
-                if (this.entries.entry(i).length() < columns) {
-                    this.entries.entry(i).add(this.entries.entry(i).length(),
-                            this.newT());
-                }
-
-                if (this.entries.entry(i).length() > columns) {
-                    this.entries.entry(i)
-                            .remove(this.entries.entry(i).length() - 1);
-                }
-            }
-        }
-
-    }
-
-    @Override
     public int columns() {
-        return this.entries.entry(0).length();
+        if (this.rows() > 0) {
+            return this.entries.entry(0).length();
+        }
+        return 0;
     }
 
     @Override
@@ -218,15 +155,37 @@ public final class Matrix2<T extends Linear<T>> extends MatrixSecondary<T> {
 
     @Override
     public void setElement(int i, int j, T element) {
-        assert i >= 1 && i <= this.rows() : "Violation of: i is in range";
-        assert j >= 1 && j <= this.columns() : "Violation of: j is in range";
+        assert i >= 1 && i <= this.rows() + 1 : "Violation of: i is in range";
+        assert j >= 1
+                && j <= this.columns() + 1 : "Violation of: j is in range";
 
-        this.entries.entry(i - 1).replaceEntry(j - 1, element);
+        if ((i == this.rows() + 1) && (j == this.columns() + 1)) {
+            Sequence<T> row = new Sequence1L<T>();
+            for (int count = 1; count <= this.columns(); count++) {
+                row.add(count - 1, this.newT());
+            }
+            row.add(j - 1, element);
+            this.entries.add(i - 1, row);
+        } else if (i == this.rows() + 1) {
+            Sequence<T> row = new Sequence1L<T>();
+            for (int count = 1; count <= this.columns(); count++) {
+                if (count == j) {
+                    row.add(count - 1, element);
+                } else {
+                    row.add(count - 1, this.newT());
+                }
+            }
+            this.entries.add(i - 1, row);
+        } else if (j == this.columns() + 1) {
+            this.entries.entry(i - 1).add(j - 1, element);
+        } else {
+            this.entries.entry(i - 1).replaceEntry(j - 1, element);
+        }
     }
 
     @Override
     public Matrix<T> newInstance() {
-        return new Matrix2<T>(this.element(1, 1).newInstance());
+        return new Matrix2<T>();
     }
 
     @Override

@@ -44,9 +44,6 @@ public abstract class MatrixTest {
 
         Matrix<LinearDouble> matrix = this.constructorTest(new LinearDouble());
 
-        matrix.setRows(rows);
-        matrix.setColumns(columns);
-
         int count = 0;
         for (int i = 1; i <= rows; i++) {
             for (int j = 1; j <= columns; j++) {
@@ -95,7 +92,7 @@ public abstract class MatrixTest {
         final int columns = 2;
 
         final double[] testEntries = { -1., 1., -1., 2., -3., 2. };
-        final double[] expectedEntries = { 1., 0., 0., 1. };
+        final double[] expectedEntries = { 1., 0., 0., 1., 0., 0., };
 
         Matrix<LinearDouble> test = this.createFromArgsTest(rows, columns,
                 testEntries);
@@ -134,7 +131,7 @@ public abstract class MatrixTest {
         final int columns = 2;
 
         final double[] testEntries = { -1., -3., 3., -3., -3., -3., 2., 0. };
-        final double[] expectedEntries = { 1., 0., 0., 1. };
+        final double[] expectedEntries = { 1., 0., 0., 1., 0., 0., 0., 0. };
 
         Matrix<LinearDouble> test = this.createFromArgsTest(rows, columns,
                 testEntries);
@@ -153,7 +150,7 @@ public abstract class MatrixTest {
         final int columns = 2;
 
         final double[] testEntries = { 1., 3., -1., 3., 3., 0., 1., -3. };
-        final double[] expectedEntries = { 1., 0., 0., 1. };
+        final double[] expectedEntries = { 1., 0., 0., 1., 0., 0., 0., 0. };
 
         Matrix<LinearDouble> test = this.createFromArgsTest(rows, columns,
                 testEntries);
@@ -173,7 +170,8 @@ public abstract class MatrixTest {
 
         final double[] testEntries = { 1., 2., 0., 1., 3., 3., -1., 0., -1.,
                 -3., 0., 0., };
-        final double[] expectedEntries = { 1., 0., 0., 0., 1., 0., 0., 0., 1. };
+        final double[] expectedEntries = { 1., 0., 0., 0., 1., 0., 0., 0., 1.,
+                0., 0., 0. };
 
         Matrix<LinearDouble> test = this.createFromArgsTest(rows, columns,
                 testEntries);
@@ -193,7 +191,8 @@ public abstract class MatrixTest {
 
         final double[] testEntries = { 3., -3., 2., -2., 2., -2., 2., 1., 1.,
                 3., 1., 1. };
-        final double[] expectedEntries = { 1., 0., 0., 0., 1., 0., 0., 0., 1. };
+        final double[] expectedEntries = { 1., 0., 0., 0., 1., 0., 0., 0., 1.,
+                0., 0., 0. };
 
         Matrix<LinearDouble> test = this.createFromArgsTest(rows, columns,
                 testEntries);

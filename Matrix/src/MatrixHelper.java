@@ -17,20 +17,26 @@ public final class MatrixHelper {
     private MatrixHelper() {
     }
 
+    /**
+     * Creates a Matrix of Integers and returns an equivalent Matrix of Doubles.
+     *
+     * @param matrix
+     *            the Matrix of Integer
+     * @return the Matrix of Doubles
+     */
     public static Matrix<LinearDouble> intToDouble(
             Matrix<LinearInteger> matrix) {
 
         Matrix<LinearDouble> output = new Matrix2<LinearDouble>();
-        return null;
-    }
 
-    public static Matrix<LinearDouble> nnToDouble(
-            Matrix<LinearInteger> matrix) {
-        return null;
-    }
+        for (int i = 1; i <= matrix.rows(); i++) {
+            for (int j = 1; j <= matrix.rows(); j++) {
+                output.setElement(i, j,
+                        new LinearDouble(matrix.element(i, j).value()));
+            }
+        }
 
-    public static Matrix<LinearDouble> nnToInt(Matrix<LinearInteger> matrix) {
-        return null;
+        return output;
     }
 
 }

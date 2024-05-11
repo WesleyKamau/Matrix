@@ -117,4 +117,8 @@ public final class LinearInteger implements Linear<LinearInteger> {
         return this.value == 1;
     }
 
+    public double value() {
+        return this.value;
+    }
+
 }

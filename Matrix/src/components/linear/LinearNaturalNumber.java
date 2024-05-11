@@ -30,6 +30,10 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
         this.createNewRep();
     }
 
+    public LinearNaturalNumber(int int1) {
+        this.value = new NaturalNumber1L(int1);
+    }
+
     /**
      * Sets this to initial value.
      */

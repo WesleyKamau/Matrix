@@ -88,6 +88,10 @@ public final class LinearDouble implements Linear<LinearDouble> {
 
     @Override
     public LinearDouble divide(LinearDouble denominator) {
+        if (denominator.isZero()) {
+            throw new ArithmeticException("Division by zero");
+        }
+
         LinearDouble result = new LinearDouble(this.value / denominator.value);
         if (result.isZero()) {
             result = new LinearDouble(0.0);
@@ -211,6 +215,10 @@ public final class LinearDouble implements Linear<LinearDouble> {
      */
     public boolean isNegativeOne() {
         return Double.compare(this.value, -1.0) == 0;
+    }
+
+    public double value() {
+        return this.value;
     }
 
 }

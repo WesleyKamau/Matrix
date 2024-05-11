@@ -228,9 +228,32 @@ public final class MatrixIndex {
      *
      * @return the maximum size of Matrices of compatible types
      */
-    public int maxSize() {
-        return Integer.max(this.doubleMap.size() + this.integerMap.size()
-                + +this.nnMap.size(), this.variableMap.size());
+    public int maxCompatibleSize() {
+        return Integer
+                .max(Integer.max(this.doubleMap.size() + this.integerMap.size(),
+                        this.nnMap.size()), this.variableMap.size());
+    }
+
+    /**
+     * Returns the count of matrices of a specific Kind.
+     *
+     * @param k
+     *            the kind of matrices
+     * @return the count of matrices of that Kind
+     */
+    public int kindSize(Kind k) {
+        switch (k) {
+            case Double:
+                return this.doubleMap.size();
+            case Integer:
+                return this.integerMap.size();
+            case NaturalNumber:
+                return this.nnMap.size();
+            case Variable:
+                return this.variableMap.size();
+            default:
+                return 0;
+        }
     }
 
     /**

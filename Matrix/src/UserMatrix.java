@@ -46,6 +46,19 @@ public final class UserMatrix {
             out.print(matrixName + " already exists. Enter a new name: ");
             matrixName = in.nextLine();
         }
+    }
+
+    private static boolean isEnum(String s) {
+        for (MatrixIndex.Kind temp : MatrixIndex.Kind.values()) {
+            if (temp.toString().equals(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void getUserMatrix(SimpleReader in, SimpleWriter out,
+            MatrixIndex dex) {
 
         out.print("Enter how many rows: ");
         String tempVariables = in.nextLine();
@@ -65,25 +78,149 @@ public final class UserMatrix {
         }
         int columns = Integer.parseInt(tempVariables);
 
-        Matrix<LinearDouble> result = new Matrix2<LinearDouble>(
-                new LinearDouble(), rows, columns);
+        out.print("What kind of Linear variable: ");
+        tempVariables = in.nextLine();
+        while (!isEnum(tempVariables)) {
+            out.print("Error. Enter the kind of Linear variable: ");
+            tempVariables = in.nextLine();
+        }
+        MatrixIndex.Kind variableKind = MatrixIndex.Kind.valueOf(tempVariables);
 
-        for (int i = 1; i <= rows; i++) {
-            for (int j = 1; j <= columns; j++) {
+        out.print("Enter a name for your new matrix: ");
+        String matrixName = getNewName(out, in, dex);
 
-                out.print("Enter the element (" + i + ", " + j + "): ");
-                tempVariables = in.nextLine();
-                while (!FormatChecker.canParseDouble(tempVariables)) {
-                    out.print("Error. Enter the element (" + i + ", " + j
-                            + "): ");
-                    tempVariables = in.nextLine();
+        switch (variableKind) {
+            case Double: {
+                Matrix<LinearDouble> result = new Matrix2<LinearDouble>();
+
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!FormatChecker.canParseDouble(tempVariables)) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j, new LinearDouble(
+                                Double.parseDouble(tempVariables)));
+                    }
                 }
-                result.setElement(i, j,
-                        new LinearDouble(Double.parseDouble(tempVariables)));
 
+                dex.addDoubleMatrix(matrixName, result);
+
+                break;
+
+            }
+            case Integer: {
+                Matrix<LinearInteger> result = new Matrix2<LinearInteger>();
+
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!FormatChecker.canParseInt(tempVariables)) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j, new LinearInteger(
+                                Integer.parseInt(tempVariables)));
+
+                    }
+                }
+
+                dex.addIntegerMatrix(matrixName, result);
+
+                break;
+
+            }
+            case NaturalNumber: {
+                Matrix<LinearNaturalNumber> result = new Matrix2<LinearNaturalNumber>();
+
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!FormatChecker.canParseInt(tempVariables)
+                                || Integer.parseInt(tempVariables) <= 0) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j, new LinearNaturalNumber(
+                                Integer.parseInt(tempVariables)));
+
+                    }
+                }
+
+                dex.addNaturalNumberMatrix(matrixName, result);
+
+                break;
+            }
+            case Variable: {
+                Matrix<LinearVariable> result = new Matrix2<LinearVariable>();
+
+                for (int i = 1; i <= rows; i++) {
+                    for (int j = 1; j <= columns; j++) {
+
+                        out.print("Enter the element (" + i + ", " + j + "): ");
+                        tempVariables = in.nextLine();
+                        while (!VariableParser.isValidTerm(tempVariables)) {
+                            out.print("Error. Enter the element (" + i + ", "
+                                    + j + "): ");
+                            tempVariables = in.nextLine();
+                        }
+                        result.setElement(i, j,
+                                VariableParser.parseExpr(tempVariables));
+
+                    }
+                }
+
+                dex.addVariableMatrix(matrixName, result);
+
+                break;
+            }
+            default: {
+                break;
             }
         }
 
+    }
+
+    /**
+     * Prints out all of the matrices in the index.
+     *
+     * @param out
+     *            the output stream
+     * @param index
+     *            the Map containing all the Matrices and their names.
+     */
+    private static void printMatrices(SimpleWriter out,
+            Map<String, Matrix<LinearDouble>> index) {
+
+        for (Map.Pair<String, Matrix<LinearDouble>> element : index) {
+            out.println(element.key());
+            element.value().print(out);
+            out.println();
+        }
+    }
+
+    /**
+     * Prompts the user for a valid Matrix Name and then adds it to the index.
+     *
+     * @param out
+     *            the output stream
+     * @param in
+     *            user input stream
+     * @param index
+     *            the index to update
+     */
+    private static void newMatrix(SimpleWriter out, SimpleReader in,
+            Map<String, Matrix<LinearDouble>> index) {
         out.println();
     }
 
@@ -113,15 +250,20 @@ public final class UserMatrix {
         boolean validPair = false;
 
         if (dex.getKind(a).equals(MatrixIndex.Kind.Double)
-                || dex.getKind(a).equals(MatrixIndex.Kind.Integer)
-                || dex.getKind(a).equals(MatrixIndex.Kind.NaturalNumber)) {
+                || dex.getKind(a).equals(MatrixIndex.Kind.Integer)) {
             // a is a compatible number
 
             if (dex.getKind(a).equals(MatrixIndex.Kind.Double)
-                    || dex.getKind(a).equals(MatrixIndex.Kind.Integer)
-                    || dex.getKind(a).equals(MatrixIndex.Kind.NaturalNumber)) {
+                    || dex.getKind(a).equals(MatrixIndex.Kind.Integer)) {
                 validPair = true;
             }
+        } else if (dex.getKind(a).equals(MatrixIndex.Kind.NaturalNumber)) {
+            // a is a Naturalnumber
+
+            if (dex.getKind(b).equals(MatrixIndex.Kind.NaturalNumber)) {
+                validPair = true;
+            }
+
         } else {
             // a is a Variable
             if (dex.getKind(b).equals(MatrixIndex.Kind.Variable)) {
@@ -145,7 +287,7 @@ public final class UserMatrix {
      */
     private static void augmentMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
-        minimumMatrix(out, in, dex, 2);
+        minimumCompatibleMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
         dex.printMatrices(out);
@@ -156,123 +298,90 @@ public final class UserMatrix {
         out.print("Enter the name of the matrix on the right:");
         String b = getExistingName(out, in, dex);
 
-        while (!isValidPair(a, b, dex)) {
-            out.print("Enter the name of the matrix on the left:");
-            a = getExistingName(out, in, dex);
+        if (isValidPair(a, b, dex)) {
+            out.print("Enter a name for your Augmented matrix: ");
+            String matrixName = getNewName(out, in, dex);
 
-            out.print("Enter the name of the matrix on the right:");
-            b = getExistingName(out, in, dex);
-        }
+            switch (dex.getKind(a)) {
+                case Double: {
 
-        out.print("Enter a name for your Augmented matrix: ");
-        String matrixName = getNewName(out, in, dex);
+                    Matrix<LinearDouble> matrixA = dex.getDoubleMatrix(a);
 
-        // dex.add(matrixName, matrixA.augment(matrixB));
+                    switch (dex.getKind(b)) {
+                        case Double: {
+                            Matrix<LinearDouble> matrixB = dex
+                                    .getDoubleMatrix(b);
 
-        switch (dex.getKind(a)) {
-            case Double: {
+                            dex.addDoubleMatrix(matrixName,
+                                    matrixA.augment(matrixB));
+                            break;
+                        }
+                        case Integer: {
 
-                Matrix<LinearDouble> matrixA = dex.getDoubleMatrix(a);
+                            Matrix<LinearInteger> matrixB = dex
+                                    .getIntegerMatrix(a);
+                            dex.addDoubleMatrix(matrixName, matrixA.augment(
+                                    MatrixHelper.intToDouble(matrixB)));
 
-                switch (dex.getKind(b)) {
-                    case Double: {
-                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
-
-                        dex.addDoubleMatrix(matrixName,
-                                matrixA.augment(matrixB));
-                        break;
+                            break;
+                        }
+                        default:
+                            break; // Will never happen, isValidPair
                     }
-                    case Integer: {
-
-                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
-
-                        break;
-                    }
-                    case NaturalNumber: {
-
-                        Matrix<LinearNaturalNumber> matrixB = dex
-                                .getNaturalNumberMatrix(a);
-
-                        break;
-                    }
-                    default:
-                        break; // Will never happen, isValidPair
+                    break;
                 }
-                break;
-            }
-            case Integer: {
+                case Integer: {
 
-                Matrix<LinearInteger> matrixA = dex.getIntegerMatrix(a);
+                    Matrix<LinearInteger> matrixA = dex.getIntegerMatrix(a);
 
-                switch (dex.getKind(b)) {
-                    case Double: {
+                    switch (dex.getKind(b)) {
+                        case Double: {
 
-                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
+                            Matrix<LinearDouble> matrixB = dex
+                                    .getDoubleMatrix(b);
+                            dex.addDoubleMatrix(matrixName, MatrixHelper
+                                    .intToDouble(matrixA).augment(matrixB));
 
-                        break;
+                            break;
+                        }
+                        case Integer: {
+
+                            Matrix<LinearInteger> matrixB = dex
+                                    .getIntegerMatrix(a);
+                            dex.addIntegerMatrix(matrixName,
+                                    matrixA.augment(matrixB));
+
+                            break;
+                        }
+                        default:
+                            break; // Will never happen, isValidPair
                     }
-                    case Integer: {
-
-                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
-                        dex.addIntegerMatrix(matrixName,
-                                matrixA.augment(matrixB));
-
-                        break;
-                    }
-                    case NaturalNumber: {
-
-                        Matrix<LinearNaturalNumber> matrixB = dex
-                                .getNaturalNumberMatrix(a);
-
-                        break;
-                    }
-                    default:
-                        break; // Will never happen, isValidPair
+                    break;
                 }
-                break;
-            }
-            case NaturalNumber: {
+                case NaturalNumber: {
 
-                Matrix<LinearNaturalNumber> matrixA = dex
-                        .getNaturalNumberMatrix(a);
+                    Matrix<LinearNaturalNumber> matrixA = dex
+                            .getNaturalNumberMatrix(a);
+                    Matrix<LinearNaturalNumber> matrixB = dex
+                            .getNaturalNumberMatrix(a);
+                    dex.addNaturalNumberMatrix(matrixName,
+                            matrixA.augment(matrixB));
 
-                switch (dex.getKind(b)) {
-                    case Double: {
-
-                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
-
-                        break;
-                    }
-                    case Integer: {
-
-                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
-
-                        break;
-                    }
-                    case NaturalNumber: {
-
-                        Matrix<LinearNaturalNumber> matrixB = dex
-                                .getNaturalNumberMatrix(a);
-                        dex.addNaturalNumberMatrix(matrixName,
-                                matrixA.augment(matrixB));
-
-                        break;
-                    }
-                    default:
-                        break; // Will never happen, isValidPair
+                    break;
                 }
-                break;
-            }
-            case Variable: {
+                case Variable: {
 
-                Matrix<LinearVariable> matrixA = dex.getVariableMatrix(a);
-                Matrix<LinearVariable> matrixB = dex.getVariableMatrix(b);
-                dex.addVariableMatrix(matrixName, matrixA.augment(matrixB));
+                    Matrix<LinearVariable> matrixA = dex.getVariableMatrix(a);
+                    Matrix<LinearVariable> matrixB = dex.getVariableMatrix(b);
+                    dex.addVariableMatrix(matrixName, matrixA.augment(matrixB));
 
-                break;
+                    break;
+                }
+                default:
+                    break; // Will never happen
             }
-            default:
-                break; // Will never happen
+        } else {
+
         }
 
     }
@@ -290,29 +399,50 @@ public final class UserMatrix {
      */
     private static void reduceMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
-        minimumMatrix(out, in, dex, 1);
+        minimumNonVariableMatrix(out, in, dex, 1);
 
         out.println("Current Matrices: ");
-        printMatrices(out, dex);
+        dex.printMatrices(out);
 
         out.print("Enter the name of the matrix to reduce:");
-        String matrixName = in.nextLine();
-        while (!dex.hasKey(matrixName)) {
-            out.print(matrixName + " doesn't exist. Enter a new name: ");
-            matrixName = in.nextLine();
-        }
+        String matrixName = getExistingName(out, in, dex);
 
-        Matrix<LinearDouble> matrix = dex.value(matrixName);
+        while (dex.getKind(matrixName).equals(MatrixIndex.Kind.Variable)) {
+            out.print(
+                    "Variables are not compatible for reduction. Enter the name of the matrix to reduce:");
+            matrixName = getExistingName(out, in, dex);
+        }
 
         out.print("Enter a name for your reduced matrix: ");
-        String reduced = in.nextLine();
+        String reduced = getNewName(out, in, dex);
 
-        while (dex.hasKey(reduced)) {
-            out.print(reduced + " already exists. Enter a new name: ");
-            reduced = in.nextLine();
+        switch (dex.getKind(matrixName)) {
+            case Double: {
+
+                Matrix<LinearDouble> matrix = dex.getDoubleMatrix(matrixName);
+                dex.addDoubleMatrix(reduced, matrix.reduce());
+
+                break;
+            }
+            case Integer: {
+
+                Matrix<LinearInteger> matrix = dex.getIntegerMatrix(matrixName);
+                dex.addIntegerMatrix(reduced, matrix.reduce());
+
+                break;
+            }
+            case NaturalNumber: {
+
+                Matrix<LinearNaturalNumber> matrix = dex
+                        .getNaturalNumberMatrix(matrixName);
+                dex.addNaturalNumberMatrix(reduced, matrix.reduce());
+
+                break;
+            }
+            default:
+                break; // Will never happen
         }
 
-        dex.add(reduced, matrix.reduce());
     }
 
     /**
@@ -328,7 +458,7 @@ public final class UserMatrix {
      */
     private static void multiplyMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
-        minimumMatrix(out, in, dex, 2);
+        minimumCompatibleMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
         printMatrices(out, dex);
@@ -376,7 +506,7 @@ public final class UserMatrix {
      */
     private static void constMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
-        minimumMatrix(out, in, dex, 1);
+        minimumCompatibleMatrix(out, in, dex, 1);
 
         out.println("Current Matrices: ");
         printMatrices(out, dex);
@@ -428,7 +558,7 @@ public final class UserMatrix {
      */
     private static void addMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
-        minimumMatrix(out, in, dex, 2);
+        minimumCompatibleMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
         printMatrices(out, dex);
@@ -531,7 +661,8 @@ public final class UserMatrix {
     }
 
     /**
-     * Collects matrices from the user until they have at least n matrices.
+     * Collects matrices from the user until they have at least n matrices that
+     * are compatible.
      *
      * @param out
      *            output stream
@@ -542,9 +673,42 @@ public final class UserMatrix {
      * @param n
      *            the minimum number of matrices
      */
-    private static void minimumMatrix(SimpleWriter out, SimpleReader in,
-            MatrixIndex dex, int n) {
-        while (dex.maxSize() < n) {
+    private static void minimumCompatibleMatrix(SimpleWriter out,
+            SimpleReader in, MatrixIndex dex, int n) {
+        while (dex.maxCompatibleSize() < n) {
+            if (dex.size() > 0) {
+                out.println("Current Matrices: ");
+                dex.printMatrices(out);
+            }
+
+            if ((n - dex.size()) == 1) {
+                out.print("You need 1 more matrix.");
+            } else {
+                out.print("You need " + (n - dex.size()) + " more matrices.");
+            }
+
+            newMatrix(out, in, dex);
+        }
+    }
+
+    /**
+     * Collects matrices from the user until they have at least n matrices that
+     * are not Variables.
+     *
+     * @param out
+     *            output stream
+     * @param in
+     *            input stream
+     * @param dex
+     *            the collection of matrices and names
+     * @param n
+     *            the minimum number of matrices
+     */
+    private static void minimumNonVariableMatrix(SimpleWriter out,
+            SimpleReader in, MatrixIndex dex, int n) {
+        while (dex.kindSize(MatrixIndex.Kind.Double) < n
+                && dex.kindSize(MatrixIndex.Kind.Integer) < n
+                && dex.kindSize(MatrixIndex.Kind.NaturalNumber) < n) {
             if (dex.size() > 0) {
                 out.println("Current Matrices: ");
                 dex.printMatrices(out);
