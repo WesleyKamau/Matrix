@@ -1,4 +1,7 @@
 import components.linear.LinearDouble;
+import components.linear.LinearInteger;
+import components.linear.LinearNaturalNumber;
+import components.linear.LinearVariable;
 import components.map.Map;
 import components.map.Map1L;
 import components.matrix.Matrix;
@@ -24,16 +27,26 @@ public final class UserMatrix {
     }
 
     /**
-     * Prompts the user to enter the parameters for a Matrix and returns it.
+     * Prompts the user for a valid Matrix Name and then adds it to the index.
      *
-     * @param in
-     *            the input stream
      * @param out
-     *            the console
-     * @return the Matrix
+     *            the output stream
+     * @param in
+     *            user input stream
+     * @param dex
+     *            the index to update
      */
-    private static Matrix<LinearDouble> getUserMatrix(SimpleReader in,
-            SimpleWriter out) {
+    private static void newMatrix(SimpleWriter out, SimpleReader in,
+            MatrixIndex dex) {
+        out.println();
+        out.print("Enter a name: ");
+        String matrixName = in.nextLine();
+
+        while (dex.hasName(matrixName)) {
+            out.print(matrixName + " already exists. Enter a new name: ");
+            matrixName = in.nextLine();
+        }
+
         out.print("Enter how many rows: ");
         String tempVariables = in.nextLine();
         while (!FormatChecker.canParseInt(tempVariables)
@@ -71,52 +84,52 @@ public final class UserMatrix {
             }
         }
 
-        return result;
-
-    }
-
-    /**
-     * Prints out all of the matrices in the index.
-     *
-     * @param out
-     *            the ouptu stream
-     * @param index
-     *            the Map containing all the Matrices and their names.
-     */
-    private static void printMatrices(SimpleWriter out,
-            Map<String, Matrix<LinearDouble>> index) {
-
-        for (Map.Pair<String, Matrix<LinearDouble>> element : index) {
-            out.println(element.key());
-            element.value().print(out);
-            out.println();
-        }
-    }
-
-    /**
-     * Prompts the user for a valid Matrix Name and then adds it to the index.
-     *
-     * @param out
-     *            the output stream
-     * @param in
-     *            user input stream
-     * @param index
-     *            the index to update
-     */
-    private static void newMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
         out.println();
-        out.print("Enter a name: ");
+    }
+
+    private static String getExistingName(SimpleWriter out, SimpleReader in,
+            MatrixIndex dex) {
+        String a = in.nextLine();
+        while (!dex.hasName(a)) {
+            out.print(a + " doesn't exist. Enter a new name: ");
+            a = in.nextLine();
+        }
+        return a;
+    }
+
+    private static String getNewName(SimpleWriter out, SimpleReader in,
+            MatrixIndex dex) {
         String matrixName = in.nextLine();
 
-        while (index.hasKey(matrixName)) {
+        while (dex.hasName(matrixName)) {
             out.print(matrixName + " already exists. Enter a new name: ");
             matrixName = in.nextLine();
         }
 
-        index.add(matrixName, getUserMatrix(in, out));
+        return matrixName;
+    }
 
-        out.println();
+    private static boolean isValidPair(String a, String b, MatrixIndex dex) {
+        boolean validPair = false;
+
+        if (dex.getKind(a).equals(MatrixIndex.Kind.Double)
+                || dex.getKind(a).equals(MatrixIndex.Kind.Integer)
+                || dex.getKind(a).equals(MatrixIndex.Kind.NaturalNumber)) {
+            // a is a compatible number
+
+            if (dex.getKind(a).equals(MatrixIndex.Kind.Double)
+                    || dex.getKind(a).equals(MatrixIndex.Kind.Integer)
+                    || dex.getKind(a).equals(MatrixIndex.Kind.NaturalNumber)) {
+                validPair = true;
+            }
+        } else {
+            // a is a Variable
+            if (dex.getKind(b).equals(MatrixIndex.Kind.Variable)) {
+                validPair = true;
+            }
+        }
+
+        return validPair;
     }
 
     /**
@@ -127,43 +140,140 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void augmentMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
-        minimumMatrix(out, in, index, 2);
+            MatrixIndex dex) {
+        minimumMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
-        printMatrices(out, index);
+        dex.printMatrices(out);
 
         out.print("Enter the name of the matrix on the left:");
-        String a = in.nextLine();
-        while (!index.hasKey(a)) {
-            out.print(a + " doesn't exist. Enter a new name: ");
-            a = in.nextLine();
-        }
-
-        Matrix<LinearDouble> matrixA = index.value(a);
+        String a = getExistingName(out, in, dex);
 
         out.print("Enter the name of the matrix on the right:");
-        String b = in.nextLine();
-        while (!index.hasKey(b)) {
-            out.print(b + " doesn't exist. Enter a new name: ");
-            b = in.nextLine();
-        }
+        String b = getExistingName(out, in, dex);
 
-        Matrix<LinearDouble> matrixB = index.value(b);
+        while (!isValidPair(a, b, dex)) {
+            out.print("Enter the name of the matrix on the left:");
+            a = getExistingName(out, in, dex);
+
+            out.print("Enter the name of the matrix on the right:");
+            b = getExistingName(out, in, dex);
+        }
 
         out.print("Enter a name for your Augmented matrix: ");
-        String matrixName = in.nextLine();
+        String matrixName = getNewName(out, in, dex);
 
-        while (index.hasKey(matrixName)) {
-            out.print(matrixName + " already exists. Enter a new name: ");
-            matrixName = in.nextLine();
+        // dex.add(matrixName, matrixA.augment(matrixB));
+
+        switch (dex.getKind(a)) {
+            case Double: {
+
+                Matrix<LinearDouble> matrixA = dex.getDoubleMatrix(a);
+
+                switch (dex.getKind(b)) {
+                    case Double: {
+                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
+
+                        dex.addDoubleMatrix(matrixName,
+                                matrixA.augment(matrixB));
+                        break;
+                    }
+                    case Integer: {
+
+                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
+
+                        break;
+                    }
+                    case NaturalNumber: {
+
+                        Matrix<LinearNaturalNumber> matrixB = dex
+                                .getNaturalNumberMatrix(a);
+
+                        break;
+                    }
+                    default:
+                        break; // Will never happen, isValidPair
+                }
+                break;
+            }
+            case Integer: {
+
+                Matrix<LinearInteger> matrixA = dex.getIntegerMatrix(a);
+
+                switch (dex.getKind(b)) {
+                    case Double: {
+
+                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
+
+                        break;
+                    }
+                    case Integer: {
+
+                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
+                        dex.addIntegerMatrix(matrixName,
+                                matrixA.augment(matrixB));
+
+                        break;
+                    }
+                    case NaturalNumber: {
+
+                        Matrix<LinearNaturalNumber> matrixB = dex
+                                .getNaturalNumberMatrix(a);
+
+                        break;
+                    }
+                    default:
+                        break; // Will never happen, isValidPair
+                }
+                break;
+            }
+            case NaturalNumber: {
+
+                Matrix<LinearNaturalNumber> matrixA = dex
+                        .getNaturalNumberMatrix(a);
+
+                switch (dex.getKind(b)) {
+                    case Double: {
+
+                        Matrix<LinearDouble> matrixB = dex.getDoubleMatrix(b);
+
+                        break;
+                    }
+                    case Integer: {
+
+                        Matrix<LinearInteger> matrixB = dex.getIntegerMatrix(a);
+
+                        break;
+                    }
+                    case NaturalNumber: {
+
+                        Matrix<LinearNaturalNumber> matrixB = dex
+                                .getNaturalNumberMatrix(a);
+                        dex.addNaturalNumberMatrix(matrixName,
+                                matrixA.augment(matrixB));
+
+                        break;
+                    }
+                    default:
+                        break; // Will never happen, isValidPair
+                }
+                break;
+            }
+            case Variable: {
+
+                Matrix<LinearVariable> matrixA = dex.getVariableMatrix(a);
+                Matrix<LinearVariable> matrixB = dex.getVariableMatrix(b);
+                dex.addVariableMatrix(matrixName, matrixA.augment(matrixB));
+
+                break;
+            }
+            default:
+                break; // Will never happen
         }
-
-        index.add(matrixName, matrixA.augment(matrixB));
 
     }
 
@@ -175,34 +285,34 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void reduceMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
-        minimumMatrix(out, in, index, 1);
+            MatrixIndex dex) {
+        minimumMatrix(out, in, dex, 1);
 
         out.println("Current Matrices: ");
-        printMatrices(out, index);
+        printMatrices(out, dex);
 
         out.print("Enter the name of the matrix to reduce:");
         String matrixName = in.nextLine();
-        while (!index.hasKey(matrixName)) {
+        while (!dex.hasKey(matrixName)) {
             out.print(matrixName + " doesn't exist. Enter a new name: ");
             matrixName = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrix = index.value(matrixName);
+        Matrix<LinearDouble> matrix = dex.value(matrixName);
 
         out.print("Enter a name for your reduced matrix: ");
         String reduced = in.nextLine();
 
-        while (index.hasKey(reduced)) {
+        while (dex.hasKey(reduced)) {
             out.print(reduced + " already exists. Enter a new name: ");
             reduced = in.nextLine();
         }
 
-        index.add(reduced, matrix.reduce());
+        dex.add(reduced, matrix.reduce());
     }
 
     /**
@@ -213,44 +323,44 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void multiplyMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
-        minimumMatrix(out, in, index, 2);
+            MatrixIndex dex) {
+        minimumMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
-        printMatrices(out, index);
+        printMatrices(out, dex);
 
         out.print("Enter the name of the matrix on the left:");
         String a = in.nextLine();
-        while (!index.hasKey(a)) {
+        while (!dex.hasKey(a)) {
             out.print(a + " doesn't exist. Enter a new name: ");
             a = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrixA = index.value(a);
+        Matrix<LinearDouble> matrixA = dex.value(a);
 
         out.print("Enter the name of the matrix on the right:");
         String b = in.nextLine();
-        while (!index.hasKey(b)) {
+        while (!dex.hasKey(b)) {
             out.print(b + " doesn't exist. Enter a new name: ");
             b = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrixB = index.value(b);
+        Matrix<LinearDouble> matrixB = dex.value(b);
 
         out.print("Enter a name for your multiplied matrix (FIRST*SECOND): ");
 
         String matrixName = in.nextLine();
 
-        while (index.hasKey(matrixName)) {
+        while (dex.hasKey(matrixName)) {
             out.print(matrixName + " already exists. Enter a new name: ");
             matrixName = in.nextLine();
         }
 
-        index.add(matrixName, matrixA.multiply(matrixB));
+        dex.add(matrixName, matrixA.multiply(matrixB));
     }
 
     /**
@@ -261,24 +371,24 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void constMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
-        minimumMatrix(out, in, index, 1);
+            MatrixIndex dex) {
+        minimumMatrix(out, in, dex, 1);
 
         out.println("Current Matrices: ");
-        printMatrices(out, index);
+        printMatrices(out, dex);
 
         out.print("Enter the name of the matrix to multiply by a constant:");
         String matrixName = in.nextLine();
-        while (!index.hasKey(matrixName)) {
+        while (!dex.hasKey(matrixName)) {
             out.print(matrixName + " doesn't exist. Enter a new name: ");
             matrixName = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrix = index.value(matrixName);
+        Matrix<LinearDouble> matrix = dex.value(matrixName);
 
         out.print("Enter the constant to multiply by:");
         String constant = in.nextLine();
@@ -292,15 +402,15 @@ public final class UserMatrix {
         out.print("Enter a name for your constant multiplied matrix: ");
         String reduced = in.nextLine();
 
-        while (index.hasKey(reduced)) {
+        while (dex.hasKey(reduced)) {
             out.print(reduced + " already exists. Enter a new name: ");
             reduced = in.nextLine();
         }
 
         if (FormatChecker.canParseInt(constant)) {
-            index.add(reduced, matrix.multiply(Integer.parseInt(constant)));
+            dex.add(reduced, matrix.multiply(Integer.parseInt(constant)));
         } else {
-            index.add(reduced, matrix.multiply(Double.parseDouble(constant)));
+            dex.add(reduced, matrix.multiply(Double.parseDouble(constant)));
         }
 
     }
@@ -313,33 +423,33 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void addMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
-        minimumMatrix(out, in, index, 2);
+            MatrixIndex dex) {
+        minimumMatrix(out, in, dex, 2);
 
         out.println("Current Matrices: ");
-        printMatrices(out, index);
+        printMatrices(out, dex);
 
         out.print("Enter the name of the first matrix:");
         String a = in.nextLine();
-        while (!index.hasKey(a)) {
+        while (!dex.hasKey(a)) {
             out.print(a + " doesn't exist. Enter a new name: ");
             a = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrixA = index.value(a);
+        Matrix<LinearDouble> matrixA = dex.value(a);
 
         out.print("Enter the name of the second matrix:");
         String b = in.nextLine();
-        while (!index.hasKey(b)) {
+        while (!dex.hasKey(b)) {
             out.print(b + " doesn't exist. Enter a new name: ");
             b = in.nextLine();
         }
 
-        Matrix<LinearDouble> matrixB = index.value(b);
+        Matrix<LinearDouble> matrixB = dex.value(b);
 
         boolean isValid = true;
 
@@ -358,12 +468,12 @@ public final class UserMatrix {
             out.print("Enter a name for your Matrix sum: ");
             String matrixName = in.nextLine();
 
-            while (index.hasKey(matrixName)) {
+            while (dex.hasKey(matrixName)) {
                 out.print(matrixName + " already exists. Enter a new name: ");
                 matrixName = in.nextLine();
             }
 
-            index.add(matrixName, matrixA.add(matrixB));
+            dex.add(matrixName, matrixA.add(matrixB));
         } else {
             out.print("Enter to continue");
             in.nextLine();
@@ -378,16 +488,16 @@ public final class UserMatrix {
      *            the output stream
      * @param in
      *            user input stream
-     * @param index
+     * @param dex
      *            the index to update
      */
     private static void consistentMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index) {
+            MatrixIndex dex) {
 
         Map<String, Matrix<LinearDouble>> temp;
         temp = new Map1L<String, Matrix<LinearDouble>>();
 
-        for (Map.Pair<String, Matrix<LinearDouble>> matrix : index) {
+        for (Map.Pair<String, Matrix<LinearDouble>> matrix : dex) {
             if (matrix.value().isRREF()) {
                 temp.add(matrix.key(), matrix.value());
             }
@@ -427,26 +537,26 @@ public final class UserMatrix {
      *            output stream
      * @param in
      *            input stream
-     * @param index
+     * @param dex
      *            the collection of matrices and names
      * @param n
      *            the minimum number of matrices
      */
     private static void minimumMatrix(SimpleWriter out, SimpleReader in,
-            Map<String, Matrix<LinearDouble>> index, int n) {
-        while (index.size() < n) {
-            if (index.size() > 0) {
+            MatrixIndex dex, int n) {
+        while (dex.maxSize() < n) {
+            if (dex.size() > 0) {
                 out.println("Current Matrices: ");
-                printMatrices(out, index);
+                dex.printMatrices(out);
             }
 
-            if ((n - index.size()) == 1) {
+            if ((n - dex.size()) == 1) {
                 out.print("You need 1 more matrix.");
             } else {
-                out.print("You need " + (n - index.size()) + " more matrices.");
+                out.print("You need " + (n - dex.size()) + " more matrices.");
             }
 
-            newMatrix(out, in, index);
+            newMatrix(out, in, dex);
         }
     }
 
@@ -477,7 +587,7 @@ public final class UserMatrix {
          * Create matrix
          */
 
-        Map<String, Matrix<LinearDouble>> dex = new Map1L<String, Matrix<LinearDouble>>();
+        MatrixIndex dex = new MatrixIndex();
 
         String input = "";
 
@@ -486,7 +596,7 @@ public final class UserMatrix {
             if (dex.size() > 0) {
                 clearTerminal(out);
                 out.println("Current Matrices: ");
-                printMatrices(out, dex);
+                dex.printMatrices(out);
             }
             out.println("To generate a new matrix, enter \"new\"");
             out.println("To augment, enter \"aug\"");
@@ -517,7 +627,7 @@ public final class UserMatrix {
                 addMatrix(out, in, dex);
             } else if (input.equals("print")) {
                 out.println("Current Matrices: ");
-                printMatrices(out, dex);
+                dex.printMatrices(out);
             } else if (input.equals("consistent") || input.equals("check")) {
                 consistentMatrix(out, in, dex);
             } else if (input.equals("stop")) {

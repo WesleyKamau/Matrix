@@ -1,8 +1,6 @@
-/CoolGridProject.class
-/Determinant.class
-/Matrix1LTest.class
-/Matrix2Test.class
-/MatrixTest.class
-/SystemOfEquationSolver.class
+/ProgramSkeleton.class
+/MatrixIndex.class
 /UserMatrix.class
-/components/
+/MatrixIndex$MatrixIterator.class
+/MatrixIndex$Kind.class
+/MatrixHelper.class
