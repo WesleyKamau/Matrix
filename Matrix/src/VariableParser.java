@@ -194,7 +194,7 @@ public final class VariableParser {
                 String variableName = tokens.dequeue();
 
                 // Variable with coefficient with either an exponent or no exponent
-                if (tokens.front().equals("^")) {
+                if (tokens.length() > 0 && tokens.front().equals("^")) {
                     // Has an exponent
                     tokens.dequeue();
                     int power = Integer.parseInt(tokens.dequeue());
@@ -215,7 +215,7 @@ public final class VariableParser {
             String variableName = front;
 
             // Variable with no coefficient with either an exponent or no exponent
-            if (tokens.front().equals("^")) {
+            if (tokens.length() > 0 && tokens.front().equals("^")) {
                 // Has an exponent
                 tokens.dequeue();
                 int power = Integer.parseInt(tokens.dequeue());
@@ -255,7 +255,9 @@ public final class VariableParser {
                         tokens.dequeue();
 
                         if (tokens.length() > 0) {
-                            tokens.dequeue();
+                            if (!FormatChecker.canParseInt(tokens.dequeue())) {
+                                return false;
+                            }
                         } else {
                             return false;
                         }
@@ -266,7 +268,9 @@ public final class VariableParser {
                     tokens.dequeue();
 
                     if (tokens.length() > 0) {
-                        tokens.dequeue();
+                        if (!FormatChecker.canParseInt(tokens.dequeue())) {
+                            return false;
+                        }
                     } else {
                         return false;
                     }
@@ -275,19 +279,10 @@ public final class VariableParser {
 
             while (tokens.length() > 0) {
                 tokens.dequeue();
-
-                front = tokens.dequeue();
-                if (FormatChecker.canParseDouble(front)) {
-                    if (tokens.length() > 0 && tokens.front().equals("*")) {
-                        tokens.dequeue();
-
-                        if (tokens.length() > 0) {
-                            tokens.dequeue();
-                        } else {
-                            return false;
-                        }
-
-                        if (tokens.length() > 0 && tokens.front().equals("^")) {
+                if (tokens.length() > 0) {
+                    front = tokens.dequeue();
+                    if (FormatChecker.canParseDouble(front)) {
+                        if (tokens.length() > 0 && tokens.front().equals("*")) {
                             tokens.dequeue();
 
                             if (tokens.length() > 0) {
@@ -295,20 +290,39 @@ public final class VariableParser {
                             } else {
                                 return false;
                             }
-                        }
-                    }
-                } else {
-                    if (tokens.length() > 0 && tokens.front().equals("^")) {
-                        tokens.dequeue();
 
-                        if (tokens.length() > 0) {
+                            if (tokens.length() > 0
+                                    && tokens.front().equals("^")) {
+                                tokens.dequeue();
+
+                                if (tokens.length() > 0) {
+                                    if (!FormatChecker
+                                            .canParseInt(tokens.dequeue())) {
+                                        return false;
+                                    }
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    } else {
+                        if (tokens.length() > 0 && tokens.front().equals("^")) {
                             tokens.dequeue();
-                        } else {
-                            return false;
+
+                            if (tokens.length() > 0) {
+                                if (!FormatChecker
+                                        .canParseInt(tokens.dequeue())) {
+                                    return false;
+                                }
+                            } else {
+                                return false;
+                            }
                         }
                     }
-                }
 
+                } else {
+                    return false;
+                }
             }
         }
 

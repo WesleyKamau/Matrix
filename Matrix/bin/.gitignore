@@ -11,3 +11,8 @@
 /VariableParser.class
 /variableKind.class
 /UserMatrix$Linear.class
+/MatrixHelper.class
+/MatrixIndex$Kind.class
+/MatrixIndex.class
+/VariableParserTest.class
+/data/

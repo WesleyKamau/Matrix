@@ -5,7 +5,12 @@ import components.linear.LinearVariable;
 import components.map.Map;
 import components.map.Map1L;
 import components.matrix.Matrix;
+import components.matrix.Matrix2;
+import components.naturalnumber.NaturalNumber1L;
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
 import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
 
 /**
  * Helper class that holds several different Maps of matrices of different
@@ -54,6 +59,10 @@ public final class MatrixIndex {
      * No argument constructor--private to prevent instantiation.
      */
     MatrixIndex() {
+        this.createNewRep();
+    }
+
+    private void createNewRep() {
         this.doubleMap = new Map1L<String, Matrix<LinearDouble>>();
         this.integerMap = new Map1L<String, Matrix<LinearInteger>>();
         this.nnMap = new Map1L<String, Matrix<LinearNaturalNumber>>();
@@ -266,39 +275,230 @@ public final class MatrixIndex {
 
         if (this.doubleMap.size() > 0) {
             out.println("Matrices of Doubles:");
+            out.println();
         }
         for (Map.Pair<String, Matrix<LinearDouble>> element : this.doubleMap) {
             out.println(element.key());
+            out.println();
             element.value().print(out);
             out.println();
         }
 
         if (this.integerMap.size() > 0) {
             out.println("Matrices of Integers:");
+            out.println();
         }
         for (Map.Pair<String, Matrix<LinearInteger>> element : this.integerMap) {
             out.println(element.key());
+            out.println();
             element.value().print(out);
             out.println();
         }
 
         if (this.nnMap.size() > 0) {
             out.println("Matrices of NaturalNumbers:");
+            out.println();
         }
         for (Map.Pair<String, Matrix<LinearNaturalNumber>> element : this.nnMap) {
             out.println(element.key());
+            out.println();
             element.value().print(out);
             out.println();
         }
 
         if (this.variableMap.size() > 0) {
             out.println("Matrices of Variables:");
+            out.println();
         }
         for (Map.Pair<String, Matrix<LinearVariable>> element : this.variableMap) {
             out.println(element.key());
+            out.println();
             element.value().print(out);
             out.println();
         }
+    }
+
+    /**
+     * Gets the rows of a given matrix s.
+     *
+     * @param s
+     *            the name of a matrix in this.
+     * @return the number of rows of the matrix.
+     */
+    public int getMatrixRows(String s) {
+        assert this.names.hasKey(s) : "Violation of: s is in this";
+        switch (this.names.value(s)) {
+            case Double:
+                return this.doubleMap.value(s).rows();
+            case Integer:
+                return this.integerMap.value(s).rows();
+            case NaturalNumber:
+                return this.nnMap.value(s).rows();
+            case Variable:
+                return this.variableMap.value(s).rows();
+            default:
+                return 0; // Will never happen
+        }
+    }
+
+    /**
+     * Gets the columns of a given matrix s.
+     *
+     * @param s
+     *            the name of a matrix in this.
+     * @return the number of columns of the matrix.
+     */
+    public int getMatrixColumns(String s) {
+        assert this.names.hasKey(s) : "Violation of: s is in this";
+        switch (this.names.value(s)) {
+            case Double:
+                return this.doubleMap.value(s).columns();
+            case Integer:
+                return this.integerMap.value(s).columns();
+            case NaturalNumber:
+                return this.nnMap.value(s).columns();
+            case Variable:
+                return this.variableMap.value(s).columns();
+            default:
+                return 0; // Will never happen
+        }
+    }
+
+    public MatrixIndex reducedMatrices() {
+
+        MatrixIndex result = new MatrixIndex();
+
+        for (Map.Pair<String, Matrix<LinearDouble>> element : this.doubleMap) {
+            if (element.value().isRREF()) {
+                result.addDoubleMatrix(element.key(), element.value());
+            }
+        }
+
+        for (Map.Pair<String, Matrix<LinearInteger>> element : this.integerMap) {
+            if (element.value().isRREF()) {
+                result.addIntegerMatrix(element.key(), element.value());
+            }
+        }
+
+        for (Map.Pair<String, Matrix<LinearNaturalNumber>> element : this.nnMap) {
+            if (element.value().isRREF()) {
+                result.addNaturalNumberMatrix(element.key(), element.value());
+            }
+        }
+
+        return result;
+    }
+
+    public void save(String filename) {
+        SimpleWriter file = new SimpleWriter1L(filename);
+
+        for (Map.Pair<String, Matrix<LinearDouble>> element : this.doubleMap) {
+            file.println(this.names.value(element.key()));
+            file.println(element.key());
+            file.println(element.value().rows());
+            file.println(element.value().columns());
+            for (LinearDouble value : element.value()) {
+                file.println(value);
+            }
+        }
+
+        for (Map.Pair<String, Matrix<LinearInteger>> element : this.integerMap) {
+            file.println(this.names.value(element.key()));
+            file.println(element.key());
+            file.println(element.value().rows());
+            file.println(element.value().columns());
+            for (LinearInteger value : element.value()) {
+                file.println(value);
+            }
+        }
+
+        for (Map.Pair<String, Matrix<LinearNaturalNumber>> element : this.nnMap) {
+            file.println(this.names.value(element.key()));
+            file.println(element.key());
+            file.println(element.value().rows());
+            file.println(element.value().columns());
+            for (LinearNaturalNumber value : element.value()) {
+                file.println(value);
+            }
+        }
+
+        for (Map.Pair<String, Matrix<LinearVariable>> element : this.variableMap) {
+            file.println(this.names.value(element.key()));
+            file.println(element.key());
+            file.println(element.value().rows());
+            file.println(element.value().columns());
+            for (LinearVariable value : element.value()) {
+                file.println(value);
+            }
+        }
+
+        file.close();
+
+    }
+
+    public void open(String filename) {
+        this.createNewRep();
+        SimpleReader file = new SimpleReader1L(filename);
+
+        while (!file.atEOS()) {
+
+            Kind matrixKind = Kind.valueOf(file.nextLine());
+            String name = file.nextLine();
+            int rows = file.nextInteger();
+            int columns = file.nextInteger();
+
+            switch (matrixKind) {
+                case Double: {
+                    Matrix<LinearDouble> temp = new Matrix2<LinearDouble>();
+                    for (int i = 1; i <= rows; i++) {
+                        for (int j = 1; j <= columns; j++) {
+                            temp.setElement(i, j,
+                                    new LinearDouble(file.nextDouble()));
+                        }
+                    }
+                    this.addDoubleMatrix(name, temp);
+                    break;
+                }
+                case Integer: {
+                    Matrix<LinearInteger> temp = new Matrix2<LinearInteger>();
+                    for (int i = 1; i <= rows; i++) {
+                        for (int j = 1; j <= columns; j++) {
+                            temp.setElement(i, j,
+                                    new LinearInteger(file.nextInteger()));
+                        }
+                    }
+                    this.addIntegerMatrix(name, temp);
+                    break;
+                }
+                case NaturalNumber: {
+                    Matrix<LinearNaturalNumber> temp = new Matrix2<LinearNaturalNumber>();
+                    for (int i = 1; i <= rows; i++) {
+                        for (int j = 1; j <= columns; j++) {
+                            temp.setElement(i, j, new LinearNaturalNumber(
+                                    new NaturalNumber1L(file.nextLine())));
+                        }
+                    }
+                    this.addNaturalNumberMatrix(name, temp);
+                    break;
+                }
+                case Variable: {
+                    Matrix<LinearVariable> temp = new Matrix2<LinearVariable>();
+                    for (int i = 1; i <= rows; i++) {
+                        for (int j = 1; j <= columns; j++) {
+                            temp.setElement(i, j,
+                                    VariableParser.parseExpr(file.nextLine()));
+                        }
+                    }
+                    this.addVariableMatrix(name, temp);
+                    break;
+                }
+                default:
+                    break; // will never happen
+            }
+
+        }
+
+        file.close();
     }
 
 }
