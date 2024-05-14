@@ -386,7 +386,23 @@ public final class LinearVariable implements Linear<LinearVariable> {
                         }
                     }
 
-                    newMap.add(thisVariable.key(), variableMap);
+                    if (newMap.hasKey(thisVariable.key())) {
+                        for (Map.Pair<Integer, LinearDouble> element : newMap
+                                .value(thisVariable.key())) {
+                            if (variableMap.hasKey(element.key())) {
+                                variableMap.replaceValue(element.key(),
+                                        variableMap.value(element.key())
+                                                .add(element.value()));
+                            } else {
+                                variableMap.add(element.key(), element.value());
+                            }
+                        }
+
+                        newMap.replaceValue(thisVariable.key(), variableMap);
+                    } else {
+                        newMap.add(thisVariable.key(), variableMap);
+                    }
+
                 } else {
                     // They are different variables
 
@@ -412,10 +428,34 @@ public final class LinearVariable implements Linear<LinearVariable> {
                             }
                             variableName += " )";
 
-                            variableMap.add(1, thisExponent.value()
-                                    .multiply(otherExponent.value()));
+                            if (variableMap.hasKey(1)) {
+                                variableMap.replaceValue(1, variableMap.value(1)
+                                        .add(thisExponent.value().multiply(
+                                                otherExponent.value())));
+                            } else {
+                                variableMap.add(1, thisExponent.value()
+                                        .multiply(otherExponent.value()));
+                            }
 
-                            newMap.add(variableName, variableMap);
+                            if (newMap.hasKey(variableName)) {
+
+                                for (Map.Pair<Integer, LinearDouble> element : newMap
+                                        .value(variableName)) {
+                                    if (variableMap.hasKey(element.key())) {
+                                        variableMap.replaceValue(element.key(),
+                                                variableMap.value(element.key())
+                                                        .add(element.value()));
+                                    } else {
+                                        variableMap.add(element.key(),
+                                                element.value());
+                                    }
+                                }
+
+                                newMap.replaceValue(variableName, variableMap);
+                            } else {
+                                newMap.add(variableName, variableMap);
+                            }
+
                         }
                     }
 

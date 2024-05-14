@@ -316,8 +316,11 @@ public final class UserMatrix {
     private static void augmentMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
 
-        out.println("Current Matrices: ");
-        dex.printMatrices(out);
+        if (dex.size() > 0) {
+            out.println("Current Matrices: ");
+            dex.printMatrices(out);
+            out.println();
+        }
 
         if (dex.maxCompatibleSize() >= 2) {
 
@@ -437,8 +440,11 @@ public final class UserMatrix {
     private static void reduceMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
 
-        out.println("Current Matrices: ");
-        dex.printMatrices(out);
+        if (dex.size() > 0) {
+            out.println("Current Matrices: ");
+            dex.printMatrices(out);
+            out.println();
+        }
 
         if (dex.kindSize(MatrixIndex.Kind.Double) >= 1
                 || dex.kindSize(MatrixIndex.Kind.Integer) >= 1
@@ -503,8 +509,11 @@ public final class UserMatrix {
     private static void multiplyMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
 
-        out.println("Current Matrices: ");
-        dex.printMatrices(out);
+        if (dex.size() > 0) {
+            out.println("Current Matrices: ");
+            dex.printMatrices(out);
+            out.println();
+        }
 
         if (dex.maxCompatibleSize() >= 2) {
 
@@ -627,9 +636,10 @@ public final class UserMatrix {
     private static void constMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
 
-        if (dex.size() < 1) {
+        if (dex.size() > 0) {
             out.println("Current Matrices: ");
             dex.printMatrices(out);
+            out.println();
 
             out.print(
                     "Enter the name of the Matrix to multiply by a constant:");
@@ -645,16 +655,16 @@ public final class UserMatrix {
             }
 
             out.print("Enter a name for your constant multiplied Matrix: ");
-            String reduced = getNewName(out, in, dex);
+            String constantMatrix = getNewName(out, in, dex);
 
             switch (dex.getKind(MatrixName)) {
                 case Double: {
                     if (FormatChecker.canParseInt(constant)) {
-                        dex.addDoubleMatrix(reduced,
+                        dex.addDoubleMatrix(constantMatrix,
                                 dex.getDoubleMatrix(MatrixName)
                                         .multiply(Integer.parseInt(constant)));
                     } else {
-                        dex.addDoubleMatrix(reduced,
+                        dex.addDoubleMatrix(constantMatrix,
                                 dex.getDoubleMatrix(MatrixName).multiply(
                                         Double.parseDouble(constant)));
                     }
@@ -662,11 +672,11 @@ public final class UserMatrix {
                 }
                 case Integer: {
                     if (FormatChecker.canParseInt(constant)) {
-                        dex.addIntegerMatrix(reduced,
+                        dex.addIntegerMatrix(constantMatrix,
                                 dex.getIntegerMatrix(MatrixName)
                                         .multiply(Integer.parseInt(constant)));
                     } else {
-                        dex.addIntegerMatrix(reduced,
+                        dex.addIntegerMatrix(constantMatrix,
                                 dex.getIntegerMatrix(MatrixName).multiply(
                                         Double.parseDouble(constant)));
                     }
@@ -674,11 +684,11 @@ public final class UserMatrix {
                 }
                 case NaturalNumber: {
                     if (FormatChecker.canParseInt(constant)) {
-                        dex.addNaturalNumberMatrix(reduced,
+                        dex.addNaturalNumberMatrix(constantMatrix,
                                 dex.getNaturalNumberMatrix(MatrixName)
                                         .multiply(Integer.parseInt(constant)));
                     } else {
-                        dex.addNaturalNumberMatrix(reduced,
+                        dex.addNaturalNumberMatrix(constantMatrix,
                                 dex.getNaturalNumberMatrix(MatrixName).multiply(
                                         Double.parseDouble(constant)));
                     }
@@ -686,11 +696,11 @@ public final class UserMatrix {
                 }
                 case Variable: {
                     if (FormatChecker.canParseInt(constant)) {
-                        dex.addVariableMatrix(reduced,
+                        dex.addVariableMatrix(constantMatrix,
                                 dex.getVariableMatrix(MatrixName)
                                         .multiply(Integer.parseInt(constant)));
                     } else {
-                        dex.addVariableMatrix(reduced,
+                        dex.addVariableMatrix(constantMatrix,
                                 dex.getVariableMatrix(MatrixName).multiply(
                                         Double.parseDouble(constant)));
                     }
@@ -699,6 +709,75 @@ public final class UserMatrix {
                 default:
                     break;
 
+            }
+
+        } else {
+            suspend("You need at least one Matrix.", out, in);
+        }
+
+    }
+
+    /**
+     * Prompts the user for a valid Matrix and then prints out the determinant.
+     *
+     * @param out
+     *            the output stream
+     * @param in
+     *            user input stream
+     * @param dex
+     *            the index to read from
+     */
+    private static void determinantMatrix(SimpleWriter out, SimpleReader in,
+            MatrixIndex dex) {
+
+        if (dex.size() > 0) {
+            out.println("Current Matrices: ");
+            dex.printMatrices(out);
+            out.println();
+
+            out.print(
+                    "Enter the name of the Matrix to calculate the determinant of: ");
+            String MatrixName = getExistingName(out, in, dex);
+
+            if (dex.getMatrixRows(MatrixName) == dex
+                    .getMatrixColumns(MatrixName)) {
+
+                String output = "";
+
+                switch (dex.getKind(MatrixName)) {
+                    case Double: {
+                        LinearDouble result = new LinearDouble();
+                        dex.getDoubleMatrix(MatrixName).determinant(result);
+                        output = result.toString();
+                        break;
+                    }
+                    case Integer: {
+                        LinearInteger result = new LinearInteger();
+                        dex.getIntegerMatrix(MatrixName).determinant(result);
+                        output = result.toString();
+                        break;
+                    }
+                    case NaturalNumber: {
+                        LinearNaturalNumber result = new LinearNaturalNumber();
+                        dex.getNaturalNumberMatrix(MatrixName)
+                                .determinant(result);
+                        output = result.toString();
+                        break;
+                    }
+                    case Variable: {
+                        LinearVariable result = new LinearVariable();
+                        dex.getVariableMatrix(MatrixName).determinant(result);
+                        output = result.toString();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                suspend("The determinant of " + MatrixName + " is: " + output,
+                        out, in);
+            } else {
+                suspend(MatrixName + " is not a square Matrix.", out, in);
             }
 
         } else {
@@ -721,8 +800,11 @@ public final class UserMatrix {
     private static void addMatrix(SimpleWriter out, SimpleReader in,
             MatrixIndex dex) {
 
-        out.println("Current Matrices: ");
-        dex.printMatrices(out);
+        if (dex.size() > 0) {
+            out.println("Current Matrices: ");
+            dex.printMatrices(out);
+            out.println();
+        }
 
         if (dex.maxCompatibleSize() >= 2) {
 
@@ -847,6 +929,7 @@ public final class UserMatrix {
 
             out.println("Current Reduced Matrices: ");
             reduced.printMatrices(out);
+            out.println();
 
             out.print("Enter the name of the Matrix to check for consistency:");
             String a = getExistingName(out, in, reduced);
@@ -897,6 +980,7 @@ public final class UserMatrix {
         for (int i = 0; i < iterations; i++) {
             out.println();
         }
+
     }
 
     /**
@@ -931,13 +1015,16 @@ public final class UserMatrix {
          */
 
         MatrixIndex dex = new MatrixIndex();
-
         String input = "";
+        boolean firstRun = true;
 
         while (!input.toLowerCase().equals("stop")) {
 
-            if (dex.size() > 0) {
+            if (!firstRun) {
                 clearTerminal(out);
+            }
+
+            if (dex.size() > 0) {
                 out.println("Current Matrices: ");
                 dex.printMatrices(out);
             }
@@ -950,6 +1037,8 @@ public final class UserMatrix {
             out.println("To print your current matrices, enter \"print\"");
             out.println("To check if a reduced Matrix is consistent,"
                     + " enter \"consistent\" or \"check\"");
+            out.println("To calculate the determinant of a square Matrix,"
+                    + " enter \"determinant\" or \"det\"");
             out.println("To save to a file, enter \"save\"");
             out.println("To open a file, enter \"open\"");
             out.println("To stop program, enter \"stop\"");
@@ -975,6 +1064,8 @@ public final class UserMatrix {
                 dex.printMatrices(out);
             } else if (input.equals("consistent") || input.equals("check")) {
                 consistentMatrix(out, in, dex);
+            } else if (input.equals("determinant") || input.equals("det")) {
+                determinantMatrix(out, in, dex);
             } else if (input.equals("save")) {
                 out.print("Enter the filename to save to: ");
                 dex.save(in.nextLine());
@@ -988,6 +1079,8 @@ public final class UserMatrix {
                     input = "stop";
                 }
             }
+
+            firstRun = false;
         }
 
         /*

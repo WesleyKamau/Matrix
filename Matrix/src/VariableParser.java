@@ -345,7 +345,14 @@ public final class VariableParser {
 
         String test = "x^2 +  2*x - 4*x^2+2";
         out.println(test);
-        out.println(parseExpr(test));
+        out.println(parseExpr(test).add(parseExpr("OMPATEL"))
+                .add(parseExpr("ATREAL")).constant(5)
+                .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
+                        .add(parseExpr("ATREAL")).constant(5))
+                .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
+                        .add(parseExpr("ATREAL")).constant(5)
+                        .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
+                                .add(parseExpr("ATREAL")).constant(5))));
         /*
          * Close input and output streams
          */

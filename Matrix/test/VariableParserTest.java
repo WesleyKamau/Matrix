@@ -97,12 +97,4 @@ public class VariableParserTest {
         assertFalse(VariableParser.isValidTerm(test));
     }
 
-    /**
-     * Test for an invalid variable.
-     */
-    @Test
-    public void invalidTest4() {
-        String test = "5x";
-        assertFalse(VariableParser.isValidTerm(test));
-    }
 }

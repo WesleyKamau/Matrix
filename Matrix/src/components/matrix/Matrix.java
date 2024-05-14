@@ -148,4 +148,11 @@ public interface Matrix<T extends Linear<T>>
      */
     boolean isConsistent();
 
+    /**
+     * Computes and returns the determinant of {@code this}.
+     *
+     * @return the determinant of {@code this}
+     */
+    void determinant(T result);
+
 }

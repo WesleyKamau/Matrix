@@ -469,6 +469,53 @@ public abstract class MatrixSecondary<T extends Linear<T>>
         return new MatrixIterator();
     }
 
+    @Override
+    public final void determinant(T result) {
+        assert this.rows() == this
+                .columns() : "Violation of : is a square matrix";
+
+        result.clear();
+
+        if (this.rows() == 2) {
+            result.transferFrom(this.element(1, 1).multiply(this.element(2, 2))
+                    .add(this.element(1, 2).multiply(this.element(2, 1))
+                            .constant(-1)));
+        } else if (this.rows() == 1) {
+            result.transferFrom(this.element(1, 1));
+        } else if (this.rows() > 2) {
+            int coefficient = 1;
+            for (int i = 1; i <= this.rows(); i++) {
+                Matrix<T> temp = new Matrix2<T>();
+
+                int icount = 1;
+                for (int i2 = 1; i2 <= this.rows(); i2++) {
+                    if (i2 != 1) {
+
+                        int jcount = 1;
+                        for (int j2 = 1; j2 <= this.columns(); j2++) {
+                            if (j2 != i) {
+
+                                temp.setElement(icount, jcount,
+                                        this.element(i2, j2));
+                                jcount++;
+                            }
+                        }
+                        icount++;
+                    }
+                }
+
+                T subMatrixDeterminant = result.newInstance();
+                temp.determinant(subMatrixDeterminant);
+                result.transferFrom(result.add(subMatrixDeterminant
+                        .constant(coefficient).multiply(this.element(1, i))));
+                coefficient *= -1;
+
+            }
+
+        }
+
+    }
+
     /**
      * Implementation of {@code Iterator} interface for {@code Matrix2}.
      */
