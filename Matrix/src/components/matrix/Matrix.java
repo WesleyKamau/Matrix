@@ -15,7 +15,7 @@ import components.standard.Standard;
  * @author Wesley Kamau
  */
 public interface Matrix<T extends Linear<T>>
-        extends MatrixKernel<T>, Standard<Matrix<T>> {
+        extends MatrixKernel<T>, Standard<Matrix<T>>, Linear<Matrix<T>> {
 
     /**
      * Swaps row1 and row2.
@@ -98,6 +98,7 @@ public interface Matrix<T extends Linear<T>>
      *            matrix A
      * @return thisA
      */
+    @Override
     Matrix<T> multiply(Matrix<T> a);
 
     /**
@@ -130,6 +131,7 @@ public interface Matrix<T extends Linear<T>>
      *            the first matrix being added.
      * @return A matrix representing this + a
      */
+    @Override
     Matrix<T> add(Matrix<T> a);
 
     /**

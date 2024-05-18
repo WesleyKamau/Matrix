@@ -3,7 +3,7 @@ package components.linear;
 /**
  * Linear system represented as an integer.
  */
-public final class LinearInteger implements Linear<LinearInteger> {
+public final class LinearInteger extends LinearSecondary<LinearInteger> {
 
     /**
      * Value of this as an integer.
@@ -40,23 +40,33 @@ public final class LinearInteger implements Linear<LinearInteger> {
     }
 
     @Override
-    public LinearInteger constant(int c) {
+    public LinearInteger add(int other) {
+        return new LinearInteger(this.value + other);
+    }
+
+    @Override
+    public LinearInteger add(double other) {
+        return new LinearInteger((int) (this.value + other));
+    }
+
+    @Override
+    public LinearInteger multiply(LinearInteger other) {
+        return new LinearInteger(this.value * other.value);
+    }
+
+    @Override
+    public LinearInteger multiply(int c) {
         return new LinearInteger(this.value * c);
     }
 
     @Override
-    public LinearInteger constant(double c) {
+    public LinearInteger multiply(double c) {
         return new LinearInteger((int) (this.value * c));
     }
 
     @Override
     public LinearInteger divide(LinearInteger denominator) {
         return new LinearInteger(this.value / denominator.value);
-    }
-
-    @Override
-    public LinearInteger multiply(LinearInteger other) {
-        return new LinearInteger(this.value * other.value);
     }
 
     @Override
@@ -78,13 +88,11 @@ public final class LinearInteger implements Linear<LinearInteger> {
         return true;
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public int hashCode() {
         return Integer.hashCode(this.value);
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public String toString() {
         return Integer.toString(this.value);
@@ -108,8 +116,7 @@ public final class LinearInteger implements Linear<LinearInteger> {
     @Override
     public void transferFrom(LinearInteger source) {
         this.value = source.value;
-        source.clear();
-
+        source.createNewRep();
     }
 
     @Override
@@ -117,6 +124,16 @@ public final class LinearInteger implements Linear<LinearInteger> {
         return this.value == 1;
     }
 
+    @Override
+    public int compareTo(LinearInteger o) {
+        return Integer.compare(this.value, o.value);
+    }
+
+    /**
+     * Returns the value of this as a double.
+     *
+     * @return the value of this as a double.
+     */
     public double value() {
         return this.value;
     }

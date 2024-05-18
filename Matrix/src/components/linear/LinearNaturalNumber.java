@@ -6,7 +6,8 @@ import components.naturalnumber.NaturalNumber1L;
 /**
  * Linear system represented as an NaturalNumber.
  */
-public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
+public final class LinearNaturalNumber
+        extends LinearSecondary<LinearNaturalNumber> {
 
     /**
      * Value of this as an NaturalNumber.
@@ -20,7 +21,8 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
      *            The value of the LinearNaturalNumber object.
      */
     public LinearNaturalNumber(NaturalNumber value) {
-        this.value = value;
+        this.createNewRep();
+        this.value.copyFrom(value);
     }
 
     /**
@@ -30,15 +32,21 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
         this.createNewRep();
     }
 
-    public LinearNaturalNumber(int int1) {
-        this.value = new NaturalNumber1L(int1);
+    /**
+     * Constructs a LinearNaturalNumber object with the specified value.
+     *
+     * @param value
+     *            The value of the LinearNaturalNumber object.
+     */
+    public LinearNaturalNumber(int value) {
+        this.value = new NaturalNumber1L(value);
     }
 
     /**
      * Sets this to initial value.
      */
     private void createNewRep() {
-        this.value = new NaturalNumber1L(0);
+        this.value = new NaturalNumber1L();
     }
 
     @Override
@@ -49,14 +57,35 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
     }
 
     @Override
-    public LinearNaturalNumber constant(int c) {
+    public LinearNaturalNumber add(int other) {
+        NaturalNumber temp = new NaturalNumber1L(this.value);
+        temp.add(new NaturalNumber1L(other));
+        return new LinearNaturalNumber(temp);
+    }
+
+    @Override
+    public LinearNaturalNumber add(double other) {
+        NaturalNumber temp = new NaturalNumber1L(this.value);
+        temp.add(new NaturalNumber1L((int) other));
+        return new LinearNaturalNumber(temp);
+    }
+
+    @Override
+    public LinearNaturalNumber multiply(LinearNaturalNumber other) {
+        NaturalNumber temp = new NaturalNumber1L(this.value);
+        temp.multiply(other.value);
+        return new LinearNaturalNumber(temp);
+    }
+
+    @Override
+    public LinearNaturalNumber multiply(int c) {
         NaturalNumber temp = new NaturalNumber1L(this.value);
         temp.multiply(new NaturalNumber1L(c));
         return new LinearNaturalNumber(temp);
     }
 
     @Override
-    public LinearNaturalNumber constant(double c) {
+    public LinearNaturalNumber multiply(double c) {
         NaturalNumber temp = new NaturalNumber1L(this.value);
         temp.multiply(new NaturalNumber1L((int) c));
         return new LinearNaturalNumber(temp);
@@ -70,9 +99,23 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
     }
 
     @Override
-    public LinearNaturalNumber multiply(LinearNaturalNumber other) {
+    public LinearNaturalNumber subtract(LinearNaturalNumber other) {
         NaturalNumber temp = new NaturalNumber1L(this.value);
-        temp.multiply(other.value);
+        temp.subtract(new NaturalNumber1L(other.value));
+        return new LinearNaturalNumber(temp);
+    }
+
+    @Override
+    public LinearNaturalNumber subtract(int other) {
+        NaturalNumber temp = new NaturalNumber1L(this.value);
+        temp.subtract(new NaturalNumber1L(other));
+        return new LinearNaturalNumber(temp);
+    }
+
+    @Override
+    public LinearNaturalNumber subtract(double other) {
+        NaturalNumber temp = new NaturalNumber1L(this.value);
+        temp.subtract(new NaturalNumber1L((int) other));
         return new LinearNaturalNumber(temp);
     }
 
@@ -95,13 +138,11 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
         return true;
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public int hashCode() {
         return this.value.hashCode();
     }
 
-    // CHECKSTYLE: ALLOW THIS METHOD TO BE OVERRIDDEN
     @Override
     public String toString() {
         return this.value.toString();
@@ -125,12 +166,17 @@ public final class LinearNaturalNumber implements Linear<LinearNaturalNumber> {
     @Override
     public void transferFrom(LinearNaturalNumber source) {
         this.value = source.value;
-        source.clear();
+        source.createNewRep();
     }
 
     @Override
     public boolean isOne() {
         return this.value.equals(new NaturalNumber1L(1));
+    }
+
+    @Override
+    public int compareTo(LinearNaturalNumber o) {
+        return this.value.compareTo(o.value);
     }
 
 }

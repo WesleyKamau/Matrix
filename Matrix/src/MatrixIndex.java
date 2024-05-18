@@ -1,3 +1,4 @@
+import VariableParser.VariableParser;
 import components.linear.LinearDouble;
 import components.linear.LinearInteger;
 import components.linear.LinearNaturalNumber;

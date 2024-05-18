@@ -1,3 +1,5 @@
+package VariableParser;
+
 import components.linear.LinearVariable;
 import components.queue.Queue;
 import components.queue.Queue1L;
@@ -176,7 +178,7 @@ public final class VariableParser {
             if (tokens.dequeue().equals("+")) {
                 result = result.add(parseTerm(tokens));
             } else {
-                result = result.add(parseTerm(tokens).constant(-1));
+                result = result.add(parseTerm(tokens).multiply(-1));
             }
         }
 
@@ -346,13 +348,13 @@ public final class VariableParser {
         String test = "x^2 +  2*x - 4*x^2+2";
         out.println(test);
         out.println(parseExpr(test).add(parseExpr("OMPATEL"))
-                .add(parseExpr("ATREAL")).constant(5)
+                .add(parseExpr("ATREAL")).multiply(5)
                 .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
-                        .add(parseExpr("ATREAL")).constant(5))
+                        .add(parseExpr("ATREAL")).multiply(5))
                 .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
-                        .add(parseExpr("ATREAL")).constant(5)
+                        .add(parseExpr("ATREAL")).multiply(5)
                         .multiply(parseExpr(test).add(parseExpr("OMPATEL"))
-                                .add(parseExpr("ATREAL")).constant(5))));
+                                .add(parseExpr("ATREAL")).multiply(5))));
         /*
          * Close input and output streams
          */

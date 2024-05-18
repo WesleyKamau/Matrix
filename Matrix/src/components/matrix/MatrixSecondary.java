@@ -254,7 +254,7 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                     T l = result.element(i1 + 1, lead + 1);
                     for (int j = 0; j < this.columns(); j++) {
                         // Subtract the multiple of the leading row from the current row
-                        T multiple = l.constant(-1)
+                        T multiple = l.multiply(-1)
                                 .multiply(result.element(r + 1, j + 1));
                         T currentElement = result.element(i1 + 1, j + 1);
                         result.setElement(i1 + 1, j + 1,
@@ -266,42 +266,6 @@ public abstract class MatrixSecondary<T extends Linear<T>>
             lead++;
         }
 
-        return result;
-    }
-
-    /**
-     * Multiplies the matrix by a constant and returns the result matrix.
-     *
-     * @param c
-     *            the constant
-     * @return A matrix that is the original matrix multiplied by constant c
-     */
-    @Override
-    public Matrix<T> multiply(int c) {
-        Matrix<T> result = this.newInstance();
-        for (int i = 1; i <= this.rows(); i++) {
-            for (int j = 1; j <= this.columns(); j++) {
-                result.setElement(i, j, this.element(i, j).constant(c));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Multiplies the matrix by a constant and returns the result matrix.
-     *
-     * @param c
-     *            the constant
-     * @return A matrix that is the original matrix multiplied by constant c
-     */
-    @Override
-    public Matrix<T> multiply(double c) {
-        Matrix<T> result = this.newInstance();
-        for (int i = 1; i <= this.rows(); i++) {
-            for (int j = 1; j <= this.columns(); j++) {
-                result.setElement(i, j, this.element(i, j).constant(c));
-            }
-        }
         return result;
     }
 
@@ -479,7 +443,7 @@ public abstract class MatrixSecondary<T extends Linear<T>>
         if (this.rows() == 2) {
             result.transferFrom(this.element(1, 1).multiply(this.element(2, 2))
                     .add(this.element(1, 2).multiply(this.element(2, 1))
-                            .constant(-1)));
+                            .multiply(-1)));
         } else if (this.rows() == 1) {
             result.transferFrom(this.element(1, 1));
         } else if (this.rows() > 2) {
@@ -507,7 +471,7 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                 T subMatrixDeterminant = result.newInstance();
                 temp.determinant(subMatrixDeterminant);
                 result.transferFrom(result.add(subMatrixDeterminant
-                        .constant(coefficient).multiply(this.element(1, i))));
+                        .multiply(coefficient).multiply(this.element(1, i))));
                 coefficient *= -1;
 
             }
@@ -568,6 +532,79 @@ public abstract class MatrixSecondary<T extends Linear<T>>
                     "remove operation not supported");
         }
 
+    }
+
+    @Override
+    public final Matrix<T> multiply(int c) {
+        Matrix<T> result = this.newInstance();
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).multiply(c));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public final Matrix<T> multiply(double c) {
+        Matrix<T> result = this.newInstance();
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).multiply(c));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public final Matrix<T> divide(Matrix<T> denominator) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean isZero() {
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                if (!this.element(i, j).isZero()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public final boolean isOne() {
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                if (!this.element(i, j).isOne()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public final Matrix<T> add(int other) {
+        Matrix<T> result = this.newInstance();
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).add(other));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public final Matrix<T> add(double other) {
+        Matrix<T> result = this.newInstance();
+        for (int i = 1; i <= this.rows(); i++) {
+            for (int j = 1; j <= this.columns(); j++) {
+                result.setElement(i, j, this.element(i, j).add(other));
+            }
+        }
+        return result;
     }
 
 }

@@ -1,9 +1,9 @@
 package components.linear;
 
 /**
- * Linear system represented as an double.
+ * Linear number represented as an double.
  */
-public final class LinearDouble implements Linear<LinearDouble> {
+public final class LinearDouble extends LinearSecondary<LinearDouble> {
 
     /**
      * Value of this as an double.
@@ -21,7 +21,8 @@ public final class LinearDouble implements Linear<LinearDouble> {
     }
 
     /**
-     * Constructs a LinearDouble object with the specified value.
+     * Constructs a LinearDouble object with the specified value of another
+     * LinearDouble.
      *
      * @param value
      *            The value of the LinearDouble object.
@@ -31,7 +32,7 @@ public final class LinearDouble implements Linear<LinearDouble> {
     }
 
     /**
-     * Basic constructor.
+     * Basic constructor with a default value of 0.
      */
     public LinearDouble() {
         this.createNewRep();
@@ -46,66 +47,38 @@ public final class LinearDouble implements Linear<LinearDouble> {
 
     @Override
     public LinearDouble add(LinearDouble other) {
-        LinearDouble result = new LinearDouble(this.value + other.value);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
-    }
-
-    /**
-     * Adds other to this and returns the result.
-     *
-     * @param other
-     *            the other LinearDouble
-     * @return this + other
-     */
-    public LinearDouble add(Double other) {
-        LinearDouble result = new LinearDouble(this.value + other);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
+        return new LinearDouble(this.value + other.value);
     }
 
     @Override
-    public LinearDouble constant(int c) {
-        LinearDouble result = new LinearDouble(this.value * c);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
+    public LinearDouble add(int other) {
+        return new LinearDouble(this.value + other);
     }
 
     @Override
-    public LinearDouble constant(double c) {
-        LinearDouble result = new LinearDouble(this.value * c);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
-    }
-
-    @Override
-    public LinearDouble divide(LinearDouble denominator) {
-        if (denominator.isZero()) {
-            throw new ArithmeticException("Division by zero");
-        }
-
-        LinearDouble result = new LinearDouble(this.value / denominator.value);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
+    public LinearDouble add(double other) {
+        return new LinearDouble(this.value + other);
     }
 
     @Override
     public LinearDouble multiply(LinearDouble other) {
-        LinearDouble result = new LinearDouble(this.value * other.value);
-        if (result.isZero()) {
-            result = new LinearDouble(0.0);
-        }
-        return result;
+        return new LinearDouble(this.value * other.value);
+    }
+
+    @Override
+    public LinearDouble multiply(int c) {
+        return new LinearDouble(this.value * c);
+    }
+
+    @Override
+    public LinearDouble multiply(double c) {
+        return new LinearDouble(this.value * c);
+    }
+
+    @Override
+    public LinearDouble divide(LinearDouble denominator) {
+        assert !denominator.isZero() : "Violation of: no division by zero";
+        return new LinearDouble(this.value / denominator.value);
     }
 
     @Override
@@ -120,29 +93,11 @@ public final class LinearDouble implements Linear<LinearDouble> {
             return false;
         }
         LinearDouble q = (LinearDouble) obj;
-        if (!isEqual(this.value, q.value)) {
+        if (Double.compare(this.value, q.value) != 0) {
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Epsilon vaue.
-     */
-    private static final double EPSILON = 1e-10;
-
-    /**
-     * Compares two values with the accuracy epsilon.
-     *
-     * @param a
-     *            value a
-     * @param b
-     *            value b
-     * @return true if they are close enough to each other
-     */
-    public static boolean isEqual(double a, double b) {
-        return Math.abs(a - b) < EPSILON;
     }
 
     @Override
@@ -164,7 +119,7 @@ public final class LinearDouble implements Linear<LinearDouble> {
             }
         }
 
-        if (Math.abs(temp) < EPSILON) {
+        if (Double.compare(Math.abs(temp), 0) == 0) {
             return Double.toString(this.value).substring(0,
                     Double.toString(this.value).indexOf('.'));
         }
@@ -172,14 +127,8 @@ public final class LinearDouble implements Linear<LinearDouble> {
     }
 
     @Override
-    public boolean isZero() {
-        return Math.abs(this.value) < EPSILON;
-    }
-
-    @Override
     public void clear() {
-        this.value = 0;
-
+        this.createNewRep();
     }
 
     @Override
@@ -190,13 +139,18 @@ public final class LinearDouble implements Linear<LinearDouble> {
     @Override
     public void transferFrom(LinearDouble source) {
         this.value = source.value;
-        source.clear();
+        source.createNewRep();
+    }
 
+    @Override
+    public boolean isZero() {
+        return this.compareTo(new LinearDouble()) == 0
+                || this.compareTo(new LinearDouble(-0.0)) == 0;
     }
 
     @Override
     public boolean isOne() {
-        return Math.abs(this.value - 1) < EPSILON;
+        return this.compareTo(new LinearDouble(1.0)) == 0;
     }
 
     /**
@@ -205,7 +159,7 @@ public final class LinearDouble implements Linear<LinearDouble> {
      * @return true if this is positive.
      */
     public boolean isPositive() {
-        return this.value >= 0;
+        return this.compareTo(new LinearDouble()) >= 0;
     }
 
     /**
@@ -214,11 +168,21 @@ public final class LinearDouble implements Linear<LinearDouble> {
      * @return true if this is -1.
      */
     public boolean isNegativeOne() {
-        return Double.compare(this.value, -1.0) == 0;
+        return this.compareTo(new LinearDouble(-1.0)) == 0;
     }
 
+    /**
+     * Returns the value of this as a double.
+     *
+     * @return the value of this as a double.
+     */
     public double value() {
         return this.value;
+    }
+
+    @Override
+    public int compareTo(LinearDouble o) {
+        return Double.compare(this.value, o.value);
     }
 
 }

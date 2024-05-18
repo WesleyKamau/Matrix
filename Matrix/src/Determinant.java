@@ -33,7 +33,7 @@ public final class Determinant {
 
         if (dex.rows() == 2) {
             result = dex.element(1, 1).multiply(dex.element(2, 2)).add(
-                    dex.element(1, 2).multiply(dex.element(2, 1)).constant(-1));
+                    dex.element(1, 2).multiply(dex.element(2, 1)).multiply(-1));
         } else if (dex.rows() == 1) {
             result = dex.element(1, 1);
         } else if (dex.rows() > 2) {
@@ -58,7 +58,7 @@ public final class Determinant {
                     }
                 }
 
-                result = result.add(determinant(temp).constant(coefficient)
+                result = result.add(determinant(temp).multiply(coefficient)
                         .multiply(dex.element(1, i)));
                 coefficient *= -1;
 

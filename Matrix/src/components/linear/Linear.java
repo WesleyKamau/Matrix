@@ -21,22 +21,24 @@ public interface Linear<T extends Linear<T>> extends Standard<T> {
     T add(T other);
 
     /**
-     * Multiplies this by a constant.
+     * Adds other to this.
      *
-     * @param c
-     *            the constant
-     * @return the result of c * this
+     * @param other
+     *            variable to add
+     *
+     * @return the result of this + other
      */
-    T constant(int c);
+    T add(int other);
 
     /**
-     * Multiplies this by a constant.
+     * Adds other to this.
      *
-     * @param c
-     *            the constant
-     * @return the result of c * this
+     * @param other
+     *            variable to add
+     *
+     * @return the result of this + other
      */
-    T constant(double c);
+    T add(double other);
 
     /**
      * Divides this by a linear variable.
@@ -55,6 +57,24 @@ public interface Linear<T extends Linear<T>> extends Standard<T> {
      * @return this * other
      */
     T multiply(T other);
+
+    /**
+     * Multiplies this by a constant.
+     *
+     * @param c
+     *            the constant
+     * @return the result of c * this
+     */
+    T multiply(int c);
+
+    /**
+     * Multiplies this by a constant.
+     *
+     * @param c
+     *            the constant
+     * @return the result of c * this
+     */
+    T multiply(double c);
 
     /**
      * Reports if this is zero.
