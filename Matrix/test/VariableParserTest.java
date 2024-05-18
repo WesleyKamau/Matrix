@@ -1,9 +1,11 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import VariableParser.VariableParser;
+import components.linear.LinearVariable;
 
 /**
  * Tests for isValidTerm and parseTerm.
@@ -21,6 +23,19 @@ public class VariableParserTest {
     public void validTest1() {
         String test = "x^2+2*x^2-5*x";
         assertTrue(VariableParser.isValidTerm(test));
+    }
+
+    /**
+     * Test for a valid variable.
+     */
+    @Test
+    public final void parseTest1() {
+        String test = "x^2+2*x^2-5*x";
+        LinearVariable parsed = VariableParser.parseExpr(test);
+        LinearVariable expected = new LinearVariable().add("x", 3, 2).add("x",
+                -5);
+        System.out.print(parsed.compareTo(expected));
+        assertEquals(parsed, expected);
     }
 
     /**

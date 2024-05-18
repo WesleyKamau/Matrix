@@ -6,6 +6,8 @@ import VariableParser.VariableParser;
 import components.map.Map;
 import components.map.Map.Pair;
 import components.map.Map1L;
+import components.set.Set;
+import components.set.Set1L;
 
 /**
  * Linear system represented as an double.
@@ -17,19 +19,41 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
     private class Variable {
 
         /**
-         * Each Map.Pair : value represents: <Variable, LinearDouble> =
-         * LinearDouble(Variable)
+         * Each element in the set represents the product of Variables that make
+         * up this.
          */
-        Map<String, LinearDouble> elements;
+        Set<Variable> elements;
+
+        boolean isSingleVariable;
+        String singleVariableName;
+        LinearDouble singleVariableExponent;
+
+        Variable() {
+            this.elements = new Set1L<Variable>();
+            this.isSingleVariable = false;
+            this.singleVariableName = "";
+            this.singleVariableExponent = new LinearDouble();
+        }
 
         Variable(String variableName, int power) {
-            this.elements = new Map1L<String, LinearDouble>();
-            this.elements.add(variableName, new LinearDouble(power));
+            this.elements = new Set1L<Variable>();
+            this.isSingleVariable = true;
+            this.singleVariableName = variableName;
+            this.singleVariableExponent = new LinearDouble(power);
         }
 
         Variable(String variableName, double power) {
-            this.elements = new Map1L<String, LinearDouble>();
-            this.elements.add(variableName, new LinearDouble(power));
+            this.elements = new Set1L<Variable>();
+            this.isSingleVariable = true;
+            this.singleVariableName = variableName;
+            this.singleVariableExponent = new LinearDouble(power);
+        }
+
+        Variable(String variableName, LinearDouble power) {
+            this.elements = new Set1L<Variable>();
+            this.isSingleVariable = true;
+            this.singleVariableName = variableName;
+            this.singleVariableExponent = new LinearDouble(power);
         }
 
         /**
@@ -41,7 +65,18 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
          *            the power to add
          */
         public void addProduct(String variableName, int power) {
-            this.elements.add(variableName, new LinearDouble(power));
+            if (this.isSingleVariable) {
+                this.isSingleVariable = false;
+                this.elements.add(new Variable(this.singleVariableName,
+                        this.singleVariableExponent));
+            }
+            if (this.elements.size() == 0) {
+                this.isSingleVariable = true;
+                this.singleVariableName = variableName;
+                this.singleVariableExponent = new LinearDouble(power);
+            } else {
+                this.elements.add(new Variable(variableName, power));
+            }
         }
 
         /**
@@ -53,35 +88,134 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
          *            the power to add
          */
         public void addProduct(String variableName, double power) {
-            this.elements.add(variableName, new LinearDouble(power));
+            if (this.isSingleVariable) {
+                this.isSingleVariable = false;
+                this.elements.add(new Variable(this.singleVariableName,
+                        this.singleVariableExponent));
+            }
+            if (this.elements.size() == 0) {
+                this.isSingleVariable = true;
+                this.singleVariableName = variableName;
+                this.singleVariableExponent = new LinearDouble(power);
+            } else {
+                this.elements.add(new Variable(variableName, power));
+            }
+        }
+
+        /**
+         * Adds the given variable and exponent to this.
+         *
+         * @param variableName
+         *            the name of the product to add
+         * @param power
+         *            the power to add
+         */
+        public void addProduct(String variableName, LinearDouble power) {
+            if (this.isSingleVariable) {
+                this.isSingleVariable = false;
+                this.elements.add(new Variable(this.singleVariableName,
+                        this.singleVariableExponent));
+            }
+            if (this.elements.size() == 0) {
+                this.isSingleVariable = true;
+                this.singleVariableName = variableName;
+                this.singleVariableExponent = new LinearDouble(power);
+            } else {
+                this.elements.add(new Variable(variableName, power));
+            }
+        }
+
+        /**
+         * Adds the given variable and exponent to this.
+         *
+         * @param variableName
+         *            the name of the product to add
+         * @param power
+         *            the power to add
+         */
+        public void addProduct(Variable newVariable) {
+            if (this.isSingleVariable) {
+                this.isSingleVariable = false;
+                this.elements.add(new Variable(this.singleVariableName,
+                        this.singleVariableExponent));
+            }
+            if (this.elements.size() == 0 && newVariable.isSingleVariable) {
+                this.isSingleVariable = true;
+                this.singleVariableName = newVariable.singleVariableName;
+                this.singleVariableExponent = new LinearDouble(
+                        newVariable.singleVariableExponent);
+            } else {
+                if (this.elements.contains(newVariable)) {
+                    this.elements.add(this.multiply(newVariable));
+                } else {
+                    this.elements.add(newVariable);
+                }
+            }
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
-            if (this.elements.size() > 1) {
+            if (!this.isSingleVariable) {
+                // There are variables in the Set, call recursively.
                 sb.append("( ");
-            }
-
-            Iterator<Map.Pair<String, LinearDouble>> elementIterator = this.elements
-                    .iterator();
-
-            while (elementIterator.hasNext()) {
-                Map.Pair<String, LinearDouble> element = elementIterator.next();
-                sb.append(element.key());
-                if (!element.value().isOne()) {
-                    sb.append("^" + element.value());
+                for (Variable element : this.elements) {
+                    sb.append(element.toString() + " * ");
                 }
-                if (elementIterator.hasNext()) {
-                    sb.append(" * ");
+                sb.delete(sb.length() - 2, sb.length());
+                sb.append(")");
+            } else {
+                // Single Variable.
+                sb.append(this.singleVariableName);
+                if (!this.singleVariableExponent.isOne()) {
+                    sb.append("^" + this.singleVariableExponent);
                 }
             }
 
-            if (this.elements.size() > 1) {
-                sb.append(" )");
-            }
             return sb.toString();
+        }
+
+        public Variable multiply(Variable other) {
+            Variable result = new Variable();
+            if (this.isSingleVariable) {
+                if (other.isSingleVariable) {
+                    if (this.singleVariableName
+                            .equals(other.singleVariableName)) {
+                        // They are the same single variable
+                        result.addProduct(this.singleVariableName,
+                                this.singleVariableExponent
+                                        .add(other.singleVariableExponent));
+                    } else {
+                        // They are different single variables
+                        result.addProduct(this.singleVariableName,
+                                this.singleVariableExponent);
+                        result.addProduct(other.singleVariableName,
+                                other.singleVariableExponent);
+                    }
+                } else {
+                    // this is a single variable, while other is not
+                    for (Variable element : other.elements) {
+                        result.addProduct(this.multiply(element));
+                    }
+                }
+            } else {
+                if (other.isSingleVariable) {
+                    // other is a single variable, while this is not
+                    for (Variable element : this.elements) {
+                        result.addProduct(other.multiply(element));
+                    }
+                } else {
+                    // Neither are single variables
+                    for (Variable thisElement : this.elements) {
+                        for (Variable otherElement : other.elements) {
+                            result.addProduct(
+                                    thisElement.multiply(otherElement));
+                        }
+                    }
+                }
+            }
+            return result;
         }
     }
 
@@ -124,7 +258,8 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
     }
 
     /*
-     * Helper methods ----------------------------------------------------------
+     * Private helper methods
+     * ----------------------------------------------------------
      */
 
     /**
@@ -133,6 +268,53 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
     private void createNewRep() {
         this.rep = new Map1L<Variable, LinearDouble>();
         this.num = new LinearDouble();
+    }
+
+    private void add(Map.Pair<Variable, LinearDouble> element) {
+        if (this.rep.hasKey(element.key())) {
+            this.rep.replaceValue(element.key(),
+                    this.rep.value(element.key()).add(element.value()));
+        } else {
+            this.rep.add(element.key(), element.value());
+        }
+    }
+
+    private void add(Variable product, LinearDouble coefficient) {
+        if (this.rep.hasKey(product)) {
+            this.rep.replaceValue(product,
+                    this.rep.value(product).add(coefficient));
+        } else {
+            this.rep.add(product, coefficient);
+        }
+    }
+
+    private void add(Variable product, double coefficient) {
+        if (this.rep.hasKey(product)) {
+            this.rep.replaceValue(product,
+                    this.rep.value(product).add(coefficient));
+        } else {
+            this.rep.add(product, new LinearDouble(coefficient));
+        }
+    }
+
+    private static Set<Variable> variableToSingles(Variable parent) {
+        Set<Variable> singleVariables = new Set1L<Variable>();
+        if (parent.isSingleVariable) {
+            singleVariables.add(parent);
+        } else {
+            for (Variable element : parent.elements) {
+                singleVariables.add(variableToSingles(element));
+            }
+        }
+        return singleVariables;
+    }
+
+    private static Set<Variable> simplify(Set<Variable> input) {
+        Set<Variable> result = input.newInstance();
+        while (input.size() > 0) {
+            Variable temp = input.removeAny();
+        }
+        return result;
     }
 
     /*
@@ -262,40 +444,39 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        Iterator<Pair<String, Map<Integer, LinearDouble>>> iterator = this.rep
+        Iterator<Map.Pair<Variable, LinearDouble>> iterator = this.rep
                 .iterator();
 
         if (iterator.hasNext()) {
-            Map.Pair<String, Map<Integer, LinearDouble>> temp = iterator.next();
-            Iterator<Pair<Integer, LinearDouble>> variableIterator = temp
-                    .value().iterator();
-            if (variableIterator.hasNext()) {
-                sb.append(
-                        this.firstVariableString(variableIterator, temp.key()));
-            }
+            Map.Pair<Variable, LinearDouble> temp = iterator.next();
 
-            while (variableIterator.hasNext()) {
-                sb.append(this.variableString(variableIterator, temp.key()));
-
+            if (temp.value().isOne()) {
+                sb.append(temp.key());
+            } else if (temp.value().isNegativeOne()) {
+                sb.append("-" + temp.key());
+            } else {
+                sb.append(temp.value() + "*" + temp.key());
             }
         }
 
         while (iterator.hasNext()) {
-            Map.Pair<String, Map<Integer, LinearDouble>> temp = iterator.next();
-            Iterator<Pair<Integer, LinearDouble>> variableIterator = temp
-                    .value().iterator();
-
-            while (variableIterator.hasNext()) {
-                sb.append(this.variableString(variableIterator, temp.key()));
+            Map.Pair<Variable, LinearDouble> temp = iterator.next();
+            if (temp.value().isOne()) {
+                sb.append(" + " + temp.key());
+            } else if (temp.value().isNegativeOne()) {
+                sb.append(" - " + temp.key());
+            } else if (temp.value().isPositive()) {
+                sb.append(" + " + temp.value() + "*" + temp.key());
+            } else {
+                sb.append(" - " + temp.value().negative() + "*" + temp.key());
             }
-
         }
 
         if (!this.num.isZero()) {
             if (this.num.isPositive()) {
                 sb.append(" + " + this.num);
             } else {
-                sb.append(" - " + this.num.multiply(-1));
+                sb.append(" - " + this.num.negative());
             }
         }
 
@@ -334,7 +515,15 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
 
     @Override
     public boolean isOne() {
-        throw new UnsupportedOperationException();
+        if (!this.num.isOne()) {
+            return false;
+        }
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            if (!element.value().isZero()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -344,181 +533,31 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
 
     @Override
     public LinearVariable multiply(LinearVariable other) {
-        Map<String, Map<Integer, LinearDouble>> newMap = new Map1L<String, Map<Integer, LinearDouble>>();
-        ;
+        LinearVariable result = new LinearVariable();
 
-        for (Map.Pair<String, Map<Integer, LinearDouble>> thisVariable : this.rep) {
-            for (Map.Pair<String, Map<Integer, LinearDouble>> otherVariable : other.rep) {
-
-                Map<Integer, LinearDouble> variableMap = new Map1L<Integer, LinearDouble>();
-
-                if (thisVariable.key().equals(otherVariable.key())) {
-                    // They are the same variable
-
-                    for (Map.Pair<Integer, LinearDouble> thisExponent : thisVariable
-                            .value()) {
-                        for (Map.Pair<Integer, LinearDouble> otherExponent : otherVariable
-                                .value()) {
-
-                            if (variableMap.hasKey(
-                                    thisExponent.key() + otherExponent.key())) {
-                                variableMap.replaceValue(
-                                        thisExponent.key()
-                                                + otherExponent.key(),
-                                        variableMap
-                                                .value(thisExponent.key()
-                                                        + otherExponent.key())
-                                                .add(thisExponent.value()
-                                                        .multiply(otherExponent
-                                                                .value())));
-                            } else {
-                                variableMap.add(
-                                        thisExponent.key()
-                                                + otherExponent.key(),
-                                        thisExponent.value().multiply(
-                                                otherExponent.value()));
-                            }
-
-                        }
-                    }
-
-                    if (newMap.hasKey(thisVariable.key())) {
-                        for (Map.Pair<Integer, LinearDouble> element : newMap
-                                .value(thisVariable.key())) {
-                            if (variableMap.hasKey(element.key())) {
-                                variableMap.replaceValue(element.key(),
-                                        variableMap.value(element.key())
-                                                .add(element.value()));
-                            } else {
-                                variableMap.add(element.key(), element.value());
-                            }
-                        }
-
-                        newMap.replaceValue(thisVariable.key(), variableMap);
-                    } else {
-                        newMap.add(thisVariable.key(), variableMap);
-                    }
-
-                } else {
-                    // They are different variables
-
-                    for (Map.Pair<Integer, LinearDouble> thisExponent : thisVariable
-                            .value()) {
-                        for (Map.Pair<Integer, LinearDouble> otherExponent : otherVariable
-                                .value()) {
-
-                            String variableName = "( ";
-
-                            if (thisExponent.key() != 1) {
-                                variableName += "( " + thisVariable.key() + "^"
-                                        + thisExponent.key() + " )";
-                            } else {
-                                variableName += thisVariable.key();
-                            }
-                            variableName += " * ";
-                            if (otherExponent.key() != 1) {
-                                variableName += "( " + otherVariable.key() + "^"
-                                        + otherExponent.key() + " )";
-                            } else {
-                                variableName += otherVariable.key();
-                            }
-                            variableName += " )";
-
-                            if (variableMap.hasKey(1)) {
-                                variableMap.replaceValue(1, variableMap.value(1)
-                                        .add(thisExponent.value().multiply(
-                                                otherExponent.value())));
-                            } else {
-                                variableMap.add(1, thisExponent.value()
-                                        .multiply(otherExponent.value()));
-                            }
-
-                            if (newMap.hasKey(variableName)) {
-
-                                for (Map.Pair<Integer, LinearDouble> element : newMap
-                                        .value(variableName)) {
-                                    if (variableMap.hasKey(element.key())) {
-                                        variableMap.replaceValue(element.key(),
-                                                variableMap.value(element.key())
-                                                        .add(element.value()));
-                                    } else {
-                                        variableMap.add(element.key(),
-                                                element.value());
-                                    }
-                                }
-
-                                newMap.replaceValue(variableName, variableMap);
-                            } else {
-                                newMap.add(variableName, variableMap);
-                            }
-
-                        }
-                    }
-
-                }
-            }
-
-        }
-
-        /*
-         * Handle double constant
-         */
-        if (!other.num.isZero()) {
-            for (Map.Pair<String, Map<Integer, LinearDouble>> thisVariable : this.rep) {
-                for (Map.Pair<Integer, LinearDouble> exponent : thisVariable
-                        .value()) {
-                    if (newMap.hasKey(thisVariable.key())) {
-                        if (newMap.value(thisVariable.key())
-                                .hasKey(exponent.key())) {
-                            newMap.value(thisVariable.key()).replaceValue(
-                                    exponent.key(),
-                                    newMap.value(thisVariable.key())
-                                            .value(exponent.key())
-                                            .add(exponent.value()
-                                                    .multiply(other.num)));
-                        } else {
-                            newMap.value(thisVariable.key()).add(exponent.key(),
-                                    exponent.value().multiply(other.num));
-                        }
-                    } else {
-                        Map<Integer, LinearDouble> variableMap = new Map1L<Integer, LinearDouble>();
-                        variableMap.add(exponent.key(),
-                                exponent.value().multiply(other.num));
-                        newMap.add(thisVariable.key(), variableMap);
-                    }
-                }
+        for (Map.Pair<Variable, LinearDouble> thisElement : this.rep) {
+            for (Map.Pair<Variable, LinearDouble> otherElement : other.rep) {
+                result.add(thisElement.key().multiply(otherElement.key()),
+                        thisElement.value().multiply(otherElement.value()));
             }
         }
 
         if (!this.num.isZero()) {
-            for (Map.Pair<String, Map<Integer, LinearDouble>> otherVariable : other.rep) {
-                for (Map.Pair<Integer, LinearDouble> exponent : otherVariable
-                        .value()) {
-                    if (newMap.hasKey(otherVariable.key())) {
-                        if (newMap.value(otherVariable.key())
-                                .hasKey(exponent.key())) {
-                            newMap.value(otherVariable.key()).replaceValue(
-                                    exponent.key(),
-                                    newMap.value(otherVariable.key())
-                                            .value(exponent.key())
-                                            .add(exponent.value()
-                                                    .multiply(this.num)));
-                        } else {
-                            newMap.value(otherVariable.key()).add(
-                                    exponent.key(),
-                                    exponent.value().multiply(this.num));
-                        }
-                    } else {
-                        Map<Integer, LinearDouble> variableMap = new Map1L<Integer, LinearDouble>();
-                        variableMap.add(exponent.key(),
-                                exponent.value().multiply(this.num));
-                        newMap.add(otherVariable.key(), variableMap);
-                    }
-                }
+            for (Map.Pair<Variable, LinearDouble> otherElement : other.rep) {
+                result.add(otherElement.key(),
+                        otherElement.value().multiply(this.num));
             }
         }
 
-        return new LinearVariable(newMap, this.num.multiply(other.num));
+        if (!other.num.isZero()) {
+            for (Map.Pair<Variable, LinearDouble> otherElement : this.rep) {
+                result.add(otherElement.key(),
+                        otherElement.value().multiply(other.num));
+            }
+        }
+
+        return result.add(this.num.multiply(other.num));
+
     }
 
     /*
@@ -536,29 +575,15 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
      * @ensures add = this + ( value * name )
      */
     public LinearVariable add(String name, LinearDouble value) {
-        /*
-         * Copy over the contents of this.value to a new Map
-         */
-        Map<String, Map<Integer, LinearDouble>> newMap = this.copyValue();
+        LinearVariable result = this.newInstance();
 
-        // Case for when the variable already exists in the LinearVariable
-        if (newMap.hasKey(name)) {
-            Map.Pair<String, Map<Integer, LinearDouble>> index = newMap
-                    .remove(name);
-            if (index.value().hasKey(1)) {
-                index.value().replaceValue(1,
-                        index.value().value(1).add(value));
-            } else {
-                index.value().add(1, new LinearDouble(value));
-            }
-            newMap.add(name, index.value());
-        } else {
-            Map<Integer, LinearDouble> temp = new Map1L<Integer, LinearDouble>();
-            temp.add(1, new LinearDouble(value));
-            newMap.add(name, temp);
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
         }
 
-        return new LinearVariable(newMap, this.num);
+        result.add(new Variable(name, 1), value);
+
+        return result;
     }
 
     /**
@@ -572,29 +597,15 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
      * @ensures add = this + ( value * name )
      */
     public LinearVariable add(String name, double value) {
-        /*
-         * Copy over the contents of this.value to a new Map
-         */
-        Map<String, Map<Integer, LinearDouble>> newMap = this.copyValue();
+        LinearVariable result = this.newInstance();
 
-        // Case for when the variable already exists in the LinearVariable
-        if (newMap.hasKey(name)) {
-            Map.Pair<String, Map<Integer, LinearDouble>> index = newMap
-                    .remove(name);
-            if (index.value().hasKey(1)) {
-                index.value().replaceValue(1,
-                        index.value().value(1).add(value));
-            } else {
-                index.value().add(1, new LinearDouble(value));
-            }
-            newMap.add(name, index.value());
-        } else {
-            Map<Integer, LinearDouble> temp = new Map1L<Integer, LinearDouble>();
-            temp.add(1, new LinearDouble(value));
-            newMap.add(name, temp);
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
         }
 
-        return new LinearVariable(newMap, this.num);
+        result.add(new Variable(name, 1), value);
+
+        return result;
     }
 
     /**
@@ -610,34 +621,15 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
      * @ensures add = this + ( value * ( name ^ exponent ) )
      */
     public LinearVariable add(String name, double value, int exponent) {
-        /*
-         * Copy over the contents of this.value to a new Map
-         */
-        Map<String, Map<Integer, LinearDouble>> newMap = this.copyValue();
-        LinearDouble tempNum = new LinearDouble(this.num);
+        LinearVariable result = this.newInstance();
 
-        if (exponent != 0) {
-            // Case for when the variable already exists in the LinearVariable
-            if (newMap.hasKey(name)) {
-                Map.Pair<String, Map<Integer, LinearDouble>> index = newMap
-                        .remove(name);
-                if (index.value().hasKey(exponent)) {
-                    index.value().replaceValue(exponent,
-                            index.value().value(exponent).add(value));
-                } else {
-                    index.value().add(exponent, new LinearDouble(value));
-                }
-                newMap.add(name, index.value());
-            } else {
-                Map<Integer, LinearDouble> temp = new Map1L<Integer, LinearDouble>();
-                temp.add(exponent, new LinearDouble(value));
-                newMap.add(name, temp);
-            }
-        } else {
-            tempNum = tempNum.add(value);
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
         }
 
-        return new LinearVariable(newMap, tempNum);
+        result.add(new Variable(name, exponent), value);
+
+        return result;
     }
 
     /**
@@ -653,47 +645,41 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
      * @ensures add = this + ( value * ( name ^ exponent ) )
      */
     public LinearVariable add(String name, LinearDouble value, int exponent) {
-        /*
-         * Copy over the contents of this.value to a new Map
-         */
-        Map<String, Map<Integer, LinearDouble>> newMap = this.copyValue();
-        LinearDouble tempNum = new LinearDouble(this.num);
+        LinearVariable result = this.newInstance();
 
-        if (exponent != 0) {
-            // Case for when the variable already exists in the LinearVariable
-            if (newMap.hasKey(name)) {
-                Map.Pair<String, Map<Integer, LinearDouble>> index = newMap
-                        .remove(name);
-                if (index.value().hasKey(exponent)) {
-                    index.value().replaceValue(exponent,
-                            index.value().value(exponent).add(value));
-                } else {
-                    index.value().add(exponent, new LinearDouble(value));
-                }
-                newMap.add(name, index.value());
-            } else {
-                Map<Integer, LinearDouble> temp = new Map1L<Integer, LinearDouble>();
-                temp.add(exponent, new LinearDouble(value));
-                newMap.add(name, temp);
-            }
-        } else {
-            tempNum = tempNum.add(value);
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
         }
 
-        return new LinearVariable(newMap, tempNum);
+        result.add(new Variable(name, exponent), value);
+
+        return result;
     }
 
-    /**
-     * Add a value to this.
-     *
-     * @param value
-     *            the value being added
-     * @return this + value
-     */
     @Override
     public LinearVariable add(double value) {
-        return new LinearVariable(this.copyValue(),
-                this.num.add(new LinearDouble(value)));
+        LinearVariable result = this.newInstance();
+
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
+        }
+
+        result.num = result.num.add(value);
+
+        return result;
+    }
+
+    @Override
+    public LinearVariable add(int value) {
+        LinearVariable result = this.newInstance();
+
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
+        }
+
+        result.num = result.num.add(value);
+
+        return result;
     }
 
     /**
@@ -704,57 +690,19 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
      * @return this + value
      */
     public LinearVariable add(LinearDouble value) {
-        return new LinearVariable(this.copyValue(), this.num.add(value));
-    }
+        LinearVariable result = this.newInstance();
 
-    public LinearDouble set(double value) {
-        assert this.rep.size() <= 1 : "Violation of: There is one variable";
-
-        LinearDouble result = new LinearDouble().add(this.num);
-        if (this.rep.size() > 0) {
-            Pair<String, Map<Integer, LinearDouble>> tempValue = this
-                    .copyValue().removeAny();
-
-            for (Map.Pair<Integer, LinearDouble> power : tempValue.value()) {
-                result = result.add(power.value().multiply(
-                        new LinearDouble(Math.pow(value, power.key()))));
-            }
+        for (Map.Pair<Variable, LinearDouble> element : this.rep) {
+            result.add(element);
         }
+
+        result.num = result.num.add(value);
 
         return result;
-
     }
 
-    private void add(Map.Pair<Variable, LinearDouble> element) {
-        if (this.rep.hasKey(element.key())) {
-            this.rep.replaceValue(element.key(),
-                    this.rep.value(element.key()).add(element.value()));
-        } else {
-            this.rep.add(element.key(), element.value());
-        }
-    }
-
-    private void add(Variable product, LinearDouble coefficient) {
-        if (this.rep.hasKey(product)) {
-            this.rep.replaceValue(product,
-                    this.rep.value(product).add(coefficient));
-        } else {
-            this.rep.add(product, coefficient);
-        }
-    }
-
-    private void add(Variable product, double coefficient) {
-        if (this.rep.hasKey(product)) {
-            this.rep.replaceValue(product,
-                    this.rep.value(product).add(coefficient));
-        } else {
-            this.rep.add(product, new LinearDouble(coefficient));
-        }
-    }
-
-    @Override
-    public LinearVariable add(int other) {
-        // TODO Auto-generated method stub
+    public LinearDouble set(String vairableName, double value) {
+        // TODO - Method to set the value of one of the variables
         return null;
     }
 
@@ -763,4 +711,5 @@ public final class LinearVariable extends LinearSecondary<LinearVariable> {
         // TODO Auto-generated method stub
         return 0;
     }
+
 }
