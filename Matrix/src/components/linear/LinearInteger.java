@@ -134,8 +134,22 @@ public final class LinearInteger extends LinearSecondary<LinearInteger> {
      *
      * @return the value of this as a double.
      */
-    public double value() {
+    public int value() {
         return this.value;
+    }
+
+    public LinearInteger power(LinearInteger p) {
+        return new LinearInteger(this.value() ^ p.value);
+    }
+
+    @Override
+    public LinearInteger power(int p) {
+        return new LinearInteger(this.value() ^ p);
+    }
+
+    @Override
+    public LinearInteger power(double p) {
+        return new LinearInteger((int) Math.pow(this.value, p));
     }
 
 }

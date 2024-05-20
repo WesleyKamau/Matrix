@@ -172,8 +172,14 @@ public final class VariableParser {
     public static LinearVariable parseExpr(String input) {
         Queue<String> tokens = tokenize(input);
 
-        LinearVariable result = parseTerm(tokens);
+        LinearVariable result = new LinearVariable();
 
+        if (tokens.length() > 0) {
+            if (tokens.front().equals("(")) {
+
+            }
+            result = parseTerm(tokens);
+        }
         while (tokens.length() > 0) {
             if (tokens.dequeue().equals("+")) {
                 result = result.add(parseTerm(tokens));
@@ -182,6 +188,21 @@ public final class VariableParser {
             }
         }
 
+        return result;
+    }
+
+    private static LinearVariable parseVariable(Queue<String> tokens) {
+        LinearVariable result = new LinearVariable().add(1);
+        tokens.dequeue(); // Get rid of "("
+        while (!tokens.front().equals(")")) {
+            String token = tokens.dequeue(); // Get Variable name
+            if (tokens.front().equals("^")) {
+                tokens.dequeue();
+                result.multiply(new LinearVariable().add(token, 1,
+                        Double.parseDouble(tokens.dequeue())));
+            }
+            result.multiply(tokens.dequeue(), 1);
+        }
         return result;
     }
 
@@ -211,6 +232,19 @@ public final class VariableParser {
             } else {
                 // Just a number
                 result = result.add(Double.parseDouble(front));
+            }
+        } else if (front.equals("(")) {
+            LinearVariable tempResult = parseVariable(tokens);
+
+            // Variable with coefficient with either an exponent or no exponent
+            if (tokens.length() > 0 && tokens.front().equals("^")) {
+                // Has an exponent
+                tokens.dequeue();
+                int power = Integer.parseInt(tokens.dequeue());
+                result = result.add(tempResult.power(power));
+            } else {
+                // Has no exponent
+                result = result.add(tempResult);
             }
         } else {
             // A variable with no coefficient

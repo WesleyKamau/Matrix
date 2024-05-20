@@ -179,4 +179,24 @@ public final class LinearNaturalNumber
         return this.value.compareTo(o.value);
     }
 
+    public LinearNaturalNumber power(LinearNaturalNumber p) {
+        NaturalNumber result = this.value.newInstance();
+        result.power(p.value.toInt());
+        return new LinearNaturalNumber(result);
+    }
+
+    @Override
+    public LinearNaturalNumber power(int p) {
+        NaturalNumber result = this.value.newInstance();
+        result.power(p);
+        return new LinearNaturalNumber(result);
+    }
+
+    @Override
+    public LinearNaturalNumber power(double p) {
+        NaturalNumber result = this.value.newInstance();
+        result.power((int) p);
+        return new LinearNaturalNumber(result);
+    }
+
 }

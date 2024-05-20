@@ -76,6 +76,10 @@ public interface Linear<T extends Linear<T>> extends Standard<T> {
      */
     T multiply(double c);
 
+    T power(int p);
+
+    T power(double p);
+
     /**
      * Reports if this is zero.
      *

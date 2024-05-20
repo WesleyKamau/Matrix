@@ -185,4 +185,18 @@ public final class LinearDouble extends LinearSecondary<LinearDouble> {
         return Double.compare(this.value, o.value);
     }
 
+    public LinearDouble power(LinearDouble p) {
+        return new LinearDouble(Math.pow(this.value, p.value));
+    }
+
+    @Override
+    public LinearDouble power(int p) {
+        return new LinearDouble(Math.pow(this.value, p));
+    }
+
+    @Override
+    public LinearDouble power(double p) {
+        return new LinearDouble(Math.pow(this.value, p));
+    }
+
 }
