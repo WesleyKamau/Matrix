@@ -32,8 +32,8 @@ public class VariableParserTest {
     public final void parseTest1() {
         String test = "x^2+2*x^2-5*x";
         LinearVariable parsed = VariableParser.parseExpr(test);
-        LinearVariable expected = new LinearVariable().add("x", 3, 2).add("x",
-                -5);
+        LinearVariable expected = new LinearVariable().add(3, "x", 2).add(-5,
+                "x");
         System.out.print(parsed.compareTo(expected));
         assertEquals(parsed, expected);
     }

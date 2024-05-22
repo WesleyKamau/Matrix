@@ -198,7 +198,7 @@ public final class VariableParser {
             String token = tokens.dequeue(); // Get Variable name
             if (tokens.front().equals("^")) {
                 tokens.dequeue();
-                result.multiply(new LinearVariable().add(token, 1,
+                result.multiply(new LinearVariable().add(token,
                         Double.parseDouble(tokens.dequeue())));
             }
             result.multiply(tokens.dequeue(), 1);
@@ -221,7 +221,7 @@ public final class VariableParser {
                     // Has an exponent
                     tokens.dequeue();
                     int power = Integer.parseInt(tokens.dequeue());
-                    result = result.add(variableName, Double.parseDouble(front),
+                    result = result.add(Double.parseDouble(front), variableName,
                             power);
                 } else {
                     // Has no exponent
@@ -255,7 +255,7 @@ public final class VariableParser {
                 // Has an exponent
                 tokens.dequeue();
                 int power = Integer.parseInt(tokens.dequeue());
-                result = result.add(variableName, 1.0, power);
+                result = result.add(variableName, power);
             } else {
                 // Has no exponent
                 result = result.add(variableName, 1.0);
