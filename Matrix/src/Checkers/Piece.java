@@ -22,6 +22,7 @@ public final class Piece implements Standard<Piece> {
         this.isKing = false;
         this.color = null;
         this.isEmpty = true;
+
     }
 
     public boolean isKing() {

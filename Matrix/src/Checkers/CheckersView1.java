@@ -38,7 +38,7 @@ public final class CheckersView1 extends JFrame implements CheckersView {
 
             public PlainJButton(Icon i) {
                 super(i);
-                //this.setBorder(null);
+                this.setBorder(null);
                 this.setBorderPainted(false);
                 this.setContentAreaFilled(false);
                 this.setOpaque(false);
@@ -73,7 +73,15 @@ public final class CheckersView1 extends JFrame implements CheckersView {
                     } else {
                         this.button.setIcon(this.redKing);
                     }
+                } else {
+                    if (this.piece.color.equals(Piece.Color.BLACK)) {
+                        this.button.setIcon(this.black);
+                    } else {
+                        this.button.setIcon(this.red);
+                    }
                 }
+            } else {
+                this.button.setIcon(null);
             }
         }
 
@@ -88,7 +96,16 @@ public final class CheckersView1 extends JFrame implements CheckersView {
         }
     }
 
+    @Override
+    public void update() {
+        for (ButtonPiece bp : this.board) {
+            bp.update();
+        }
+    }
+
     private SimpleMatrix<ButtonPiece> board;
+
+    CheckersController controller;
 
     /**
      * Controller object registered with this view to observe user-interaction
@@ -136,17 +153,16 @@ public final class CheckersView1 extends JFrame implements CheckersView {
             butt.button.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent evt) {
-                    System.out.println(evt);
+                    // System.out.println(evt);
                 }
 
                 @Override
                 public void mouseExited(MouseEvent evt) {
-                    System.out.println(evt);
+                    //System.out.println(evt);
                 }
             });
-        }
 
-        this.back
+        }
 
         /*
          * Organize main window
@@ -173,6 +189,16 @@ public final class CheckersView1 extends JFrame implements CheckersView {
          * by the user
          */
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        System.out.println(event);
+
+        for (ButtonPiece bp : this.board) {
+            if (bp.button == event.getSource()) {
+                System.out.println("FOUND!");
+                this.controller.processClickEvent(bp.piece);
+            }
+        }
+
         /*
          * Set the cursor back to normal (because we changed it at the beginning
          * of the method body)
@@ -182,8 +208,7 @@ public final class CheckersView1 extends JFrame implements CheckersView {
 
     @Override
     public void registerObserver(CheckersController controller) {
-        // TODO Auto-generated method stub
-
+        this.controller = controller;
     }
 
     @Override

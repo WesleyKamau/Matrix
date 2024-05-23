@@ -9,10 +9,6 @@ public final class Checkers {
     private Checkers() {
     }
 
-    enum Direction {
-        UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT
-    }
-
     /**
      * Main program that sets up main application window and starts user
      * interaction.

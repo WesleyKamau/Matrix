@@ -10,6 +10,8 @@ import components.matrix.SimpleMatrix1L;
  */
 public final class CheckersModel1 implements CheckersModel {
 
+    private static
+
     private SimpleMatrix<Piece> board;
 
     private int BOARD_SIZE = 8;
@@ -47,8 +49,50 @@ public final class CheckersModel1 implements CheckersModel {
     }
 
     @Override
+    public int getX(Piece piece) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                if (piece.equals(this.board().element(i, j))) {
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getY(Piece piece) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                if (piece.equals(this.board().element(i, j))) {
+                    return j;
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
     public void move(Piece pre, Piece post) {
-        post.transferFrom(pre);
+        Piece temp = new Piece();
+        temp.transferFrom(pre);
+        pre.transferFrom(post);
+        post.transferFrom(temp);
+        System.out.print(this.getY(post));
+
+        if (!post.isKing) {
+            int j = this.getY(post);
+            if (post.color.equals(Piece.Color.RED)) {
+                if (j == 8) {
+                    post.king();
+                }
+            } else {
+                if (j == 1) {
+                    post.king();
+                }
+            }
+        }
+
     }
 
 }

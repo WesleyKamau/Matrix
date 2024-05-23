@@ -24,4 +24,6 @@ public interface CheckersView extends ActionListener {
 
     void winner(String playerName);
 
+    public void update();
+
 }

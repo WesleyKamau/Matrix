@@ -1,7 +1,5 @@
 package Checkers;
 
-import Checkers.Checkers.Direction;
-
 /**
  * Controller class.
  *
@@ -56,22 +54,90 @@ public final class CheckersController1 implements CheckersController {
 
     }
 
-    @Override
-    public void movePiece(Piece piece, Direction direct) {
-        // TODO Auto-generated method stub
+    Piece selected = null;
 
+    @Override
+    public void processClickEvent(Piece p) {
+        if (this.selected == null) {
+            if (!p.isEmpty) {
+                this.selected = p;
+            }
+        } else {
+            this.movePiece(this.selected, p);
+            this.selected = null;
+        }
+        this.view.update();
+
+    }
+
+    Direction parseDirection(Piece pre, Piece post) {
+        int i = this.model.getX(pre);
+        int j = this.model.getY(pre);
+        int iPost = this.model.getX(post);
+        int jPost = this.model.getY(post);
+
+        if (iPost == i + 1 && j - 1 == jPost) {
+            return Direction.DOWN_LEFT;
+        } else if (iPost == i + 1 && j + 1 == jPost) {
+            return Direction.DOWN_RIGHT;
+        } else if (iPost == i - 1 && j - 1 == jPost) {
+            return Direction.UP_LEFT;
+        } else if (iPost == i - 1 && j + 1 == jPost) {
+            return Direction.UP_RIGHT;
+        } else if (iPost == i + 2 && j - 2 == jPost) {
+            return Direction.DOWN_LEFT_JUMP;
+        } else if (iPost == i + 2 && j + 2 == jPost) {
+            return Direction.DOWN_RIGHT_JUMP;
+        } else if (iPost == i - 2 && j - 2 == jPost) {
+            return Direction.UP_LEFT_JUMP;
+        } else if (iPost == i - 2 && j + 2 == jPost) {
+            return Direction.UP_RIGHT_JUMP;
+        }
+        return null;
+    }
+
+    private boolean isValidMove(Piece pre, Piece post) {
+        int i = this.model.getX(pre);
+        int j = this.model.getY(pre);
+        int iPost = this.model.getX(post);
+        int jPost = this.model.getY(post);
+
+        if (iPost == i + 1 && j - 1 == jPost) {
+            return true;
+        } else if (iPost == i + 1 && j + 1 == jPost) {
+            return true;
+        } else if (iPost == i - 1 && j - 1 == jPost) {
+            return true;
+        } else if (iPost == i - 1 && j + 1 == jPost) {
+            return true;
+        } else if (iPost == i + 2 && j - 2 == jPost) {
+            return true;
+        } else if (iPost == i + 2 && j + 2 == jPost) {
+            return true;
+        } else if (iPost == i - 2 && j - 2 == jPost) {
+            return true;
+        } else if (iPost == i - 2 && j + 2 == jPost) {
+            return true;
+        }
+        return false;
+
+    }
+
+    @Override
+    public void movePiece(Piece pre, Piece post) {
+        if (this.isValidMove(pre, post)) {
+            this.model.move(pre, post);
+        }
     }
 
     @Override
     public void kill(Piece piece) {
-        // TODO Auto-generated method stub
-
+        piece.clear();
     }
 
     @Override
     public void king(Piece piece) {
-        // TODO Auto-generated method stub
-
+        piece.king();
     }
 
 }
