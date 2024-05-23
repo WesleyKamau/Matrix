@@ -27,7 +27,7 @@ public final class Checkers {
          * about controller
          */
         CheckersModel model = new CheckersModel1();
-        CheckersView view = new CheckersView1();
+        CheckersView view = new CheckersView1(model);
         CheckersController controller = new CheckersController1(model, view);
 
         view.registerObserver(controller);

@@ -1,54 +1,107 @@
-import java.awt.Cursor;
-import java.awt.event.ActionEvent;
+package Checkers;
 
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JTextArea;
+import javax.swing.JPanel;
 
-import components.naturalnumber.NaturalNumber;
+import components.matrix.SimpleMatrix;
+import components.matrix.SimpleMatrix1L;
 
-/**
- * View class.
- *
- * @author Put your name here
- */
 public final class CheckersView1 extends JFrame implements CheckersView {
+
+    private class ButtonPiece {
+
+        private final Icon red = new ImageIcon("img/Checker_Red.png"),
+                redKing = new ImageIcon("img/Checker_Red_King.png"),
+                black = new ImageIcon("img/Checker_Black.png"),
+                blackKing = new ImageIcon("img/Checker_Black_King.png");
+        JButton button;
+        Piece piece;
+
+        public class PlainJButton extends JButton {
+
+            public PlainJButton() {
+                super();
+                this.setBorder(null);
+                this.setBorderPainted(false);
+                this.setContentAreaFilled(false);
+                this.setOpaque(false);
+            }
+
+            public PlainJButton(Icon i) {
+                super(i);
+                //this.setBorder(null);
+                this.setBorderPainted(false);
+                this.setContentAreaFilled(false);
+                this.setOpaque(false);
+            }
+        }
+
+        int iconHeight = this.red.getIconHeight();
+
+        ButtonPiece(Piece p) {
+            if (p.isEmpty) {
+                this.button = new PlainJButton();
+            } else {
+                if (p.color.equals(Piece.Color.BLACK)) {
+                    this.button = new PlainJButton(this.black);
+                } else {
+                    this.button = new PlainJButton(this.red);
+                }
+            }
+            this.piece = p;
+        }
+
+        ButtonPiece() {
+            this.button = new PlainJButton();
+            this.piece = new Piece();
+        }
+
+        private void update() {
+            if (!this.piece.isEmpty) {
+                if (this.piece.isKing) {
+                    if (this.piece.color.equals(Piece.Color.BLACK)) {
+                        this.button.setIcon(this.blackKing);
+                    } else {
+                        this.button.setIcon(this.redKing);
+                    }
+                }
+            }
+        }
+
+        JButton getButton() {
+            this.update();
+            return this.button;
+        }
+
+        Piece getPiece() {
+            this.update();
+            return this.piece;
+        }
+    }
+
+    private SimpleMatrix<ButtonPiece> board;
 
     /**
      * Controller object registered with this view to observe user-interaction
-     * events.
-     */
-    private CheckersController controller;
-
-    /**
-     * Text areas.
-     */
-    private final JTextArea tTop, tBottom;
-
-    /**
-     * Operator and related buttons.
-     */
-    private final JButton bClear, bSwap, bEnter, bAdd, bSubtract, bMultiply,
-            bDivide, bPower, bRoot;
-
-    /**
-     * Digit entry buttons.
-     */
-    private final JButton[] bDigits;
-
-    /**
-     * Useful constants.
+     *
+     * /** Useful constants.
      */
     private static final int TEXT_AREA_HEIGHT = 5, TEXT_AREA_WIDTH = 20,
-            DIGIT_BUTTONS = 10, MAIN_BUTTON_PANEL_GRID_ROWS = 4,
-            MAIN_BUTTON_PANEL_GRID_COLUMNS = 4, SIDE_BUTTON_PANEL_GRID_ROWS = 3,
-            SIDE_BUTTON_PANEL_GRID_COLUMNS = 1, CALC_GRID_ROWS = 3,
-            CALC_GRID_COLUMNS = 1;
+            MAIN_BUTTON_PANEL_GRID_ROWS = 8, MAIN_BUTTON_PANEL_GRID_COLUMNS = 8;
 
     /**
-     * No argument constructor.
+     * Default constructor.
      */
-    public CheckersView1() {
+    public CheckersView1(CheckersModel board) {
         // Create the JFrame being extended
 
         /*
@@ -57,82 +110,49 @@ public final class CheckersView1 extends JFrame implements CheckersView {
          */
         super("Checkers");
 
-        // Set up the GUI widgets --------------------------------------------
+        this.board = new SimpleMatrix1L<ButtonPiece>();
 
-        /*
-         * Set up initial state of GUI to behave like last event was "Clear";
-         * currentState is not a GUI widget per se, but is needed to process
-         * digit button events appropriately
-         */
-        this.currentState = State.SAW_CLEAR;
-
-        // TODO: fill in rest of body, following outline in comments
-
-        /*
-         * Create widgets
-         */
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                this.board.setElement(i, j,
+                        new ButtonPiece(board.board().element(i, j)));
+            }
+        }
 
         // Set up the GUI widgets --------------------------------------------
-
-        /*
-         * Text areas should wrap lines, and should be read-only; they cannot be
-         * edited because allowing keyboard entry would require checking whether
-         * entries are digits, which we don't want to have to do
-         */
-
-        /*
-         * Initially, the following buttons should be disabled: divide (divisor
-         * must not be 0) and root (root must be at least 2) -- hint: see the
-         * JButton method setEnabled
-         */
-
-        /*
-         * Create scroll panes for the text areas in case number is long enough
-         * to require scrolling
-         */
 
         /*
          * Create main button panel
          */
-
+        JPanel buttonPanel = new JPanel(new GridLayout(
+                MAIN_BUTTON_PANEL_GRID_ROWS, MAIN_BUTTON_PANEL_GRID_COLUMNS));
         /*
          * Add the buttons to the main button panel, from left to right and top
          * to bottom
          */
+        for (ButtonPiece butt : this.board) {
+            buttonPanel.add(butt.getButton());
+            butt.button.addActionListener(this);
+            butt.button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent evt) {
+                    System.out.println(evt);
+                }
 
-        /*
-         * Create side button panel
-         */
+                @Override
+                public void mouseExited(MouseEvent evt) {
+                    System.out.println(evt);
+                }
+            });
+        }
 
-        /*
-         * Add the buttons to the side button panel, from left to right and top
-         * to bottom
-         */
-
-        /*
-         * Create combined button panel organized using flow layout, which is
-         * simple and does the right thing: sizes of nested panels are natural,
-         * not necessarily equal as with grid layout
-         */
-
-        /*
-         * Add the other two button panels to the combined button panel
-         */
+        this.back
 
         /*
          * Organize main window
          */
 
-        /*
-         * Add scroll panes and button panel to main window, from left to right
-         * and top to bottom
-         */
-
-        // Set up the observers ----------------------------------------------
-
-        /*
-         * Register this object as the observer for all GUI events
-         */
+        this.add(buttonPanel);
 
         // Set up the main application window --------------------------------
 
@@ -140,56 +160,9 @@ public final class CheckersView1 extends JFrame implements CheckersView {
          * Make sure the main window is appropriately sized, exits this program
          * on close, and becomes visible to the user
          */
-
-    }
-
-    @Override
-    public void registerObserver(NNCalcController controller) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updateTopDisplay(NaturalNumber n) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updateBottomDisplay(NaturalNumber n) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updateSubtractAllowed(boolean allowed) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updateDivideAllowed(boolean allowed) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updatePowerAllowed(boolean allowed) {
-
-        // TODO: fill in body
-
-    }
-
-    @Override
-    public void updateRootAllowed(boolean allowed) {
-
-        // TODO: fill in body
-
+        this.pack();
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);
     }
 
     @Override
@@ -200,62 +173,6 @@ public final class CheckersView1 extends JFrame implements CheckersView {
          * by the user
          */
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        /*
-         * Determine which event has occurred that we are being notified of by
-         * this callback; in this case, the source of the event (i.e, the widget
-         * calling actionPerformed) is all we need because only buttons are
-         * involved here, so the event must be a button press; in each case,
-         * tell the controller to do whatever is needed to update the model and
-         * to refresh the view
-         */
-        Object source = event.getSource();
-        if (source == this.bClear) {
-            this.controller.processClearEvent();
-            this.currentState = State.SAW_CLEAR;
-        } else if (source == this.bSwap) {
-            this.controller.processSwapEvent();
-            this.currentState = State.SAW_ENTER_OR_SWAP;
-        } else if (source == this.bEnter) {
-            this.controller.processEnterEvent();
-            this.currentState = State.SAW_ENTER_OR_SWAP;
-        } else if (source == this.bAdd) {
-            this.controller.processAddEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else if (source == this.bSubtract) {
-            this.controller.processSubtractEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else if (source == this.bMultiply) {
-            this.controller.processMultiplyEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else if (source == this.bDivide) {
-            this.controller.processDivideEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else if (source == this.bPower) {
-            this.controller.processPowerEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else if (source == this.bRoot) {
-            this.controller.processRootEvent();
-            this.currentState = State.SAW_OTHER_OP;
-        } else {
-            for (int i = 0; i < DIGIT_BUTTONS; i++) {
-                if (source == this.bDigits[i]) {
-                    switch (this.currentState) {
-                        case SAW_ENTER_OR_SWAP:
-                            this.controller.processClearEvent();
-                            break;
-                        case SAW_OTHER_OP:
-                            this.controller.processEnterEvent();
-                            this.controller.processClearEvent();
-                            break;
-                        default:
-                            break;
-                    }
-                    this.controller.processAddNewDigitEvent(i);
-                    this.currentState = State.SAW_DIGIT;
-                    break;
-                }
-            }
-        }
         /*
          * Set the cursor back to normal (because we changed it at the beginning
          * of the method body)
@@ -270,7 +187,19 @@ public final class CheckersView1 extends JFrame implements CheckersView {
     }
 
     @Override
-    public void updateBoard() {
+    public void showPossibleMoves(int x, int y) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void clearPossibleMoves() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void winner(String playerName) {
         // TODO Auto-generated method stub
 
     }

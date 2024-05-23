@@ -1,6 +1,6 @@
+package Checkers;
+
 import Checkers.Checkers.Direction;
-import components.naturalnumber.NaturalNumber;
-import components.naturalnumber.NaturalNumber2;
 
 /**
  * Controller class.
@@ -12,18 +12,12 @@ public final class CheckersController1 implements CheckersController {
     /**
      * Model object.
      */
-    private final NNCalcModel model;
+    private final CheckersModel model;
 
     /**
      * View object.
      */
-    private final NNCalcView view;
-
-    /**
-     * Useful constants.
-     */
-    private static final NaturalNumber TWO = new NaturalNumber2(2),
-            INT_LIMIT = new NaturalNumber2(Integer.MAX_VALUE);
+    private final CheckersView view;
 
     /**
      * Updates this.view to display this.model, and to allow only operations
@@ -35,8 +29,8 @@ public final class CheckersController1 implements CheckersController {
      *            the view
      * @ensures [view has been updated to be consistent with model]
      */
-    private static void updateViewToMatchModel(NNCalcModel model,
-            NNCalcView view) {
+    private static void updateViewToMatchModel(CheckersModel model,
+            CheckersView view) {
 
         // TODO: fill in body
 
@@ -50,46 +44,10 @@ public final class CheckersController1 implements CheckersController {
      * @param view
      *            view to connect to
      */
-    public CheckersController1(NNCalcModel model, NNCalcView view) {
+    public CheckersController1(CheckersModel model, CheckersView view) {
         this.model = model;
         this.view = view;
         updateViewToMatchModel(model, view);
-    }
-
-    @Override
-    public void processClearEvent() {
-        /*
-         * Get alias to bottom from model
-         */
-        NaturalNumber bottom = this.model.bottom();
-        /*
-         * Update model in response to this event
-         */
-        bottom.clear();
-        /*
-         * Update view to reflect changes in model
-         */
-        updateViewToMatchModel(this.model, this.view);
-    }
-
-    @Override
-    public void processSwapEvent() {
-        /*
-         * Get aliases to top and bottom from model
-         */
-        NaturalNumber top = this.model.top();
-        NaturalNumber bottom = this.model.bottom();
-        /*
-         * Update model in response to this event
-         */
-        NaturalNumber temp = top.newInstance();
-        temp.transferFrom(top);
-        top.transferFrom(bottom);
-        bottom.transferFrom(temp);
-        /*
-         * Update view to reflect changes in model
-         */
-        updateViewToMatchModel(this.model, this.view);
     }
 
     @Override

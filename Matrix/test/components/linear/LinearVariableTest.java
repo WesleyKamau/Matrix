@@ -63,11 +63,11 @@ public class LinearVariableTest {
     public void testMultiplyLinearVariable() {
         String testValue1 = "2*x + 3*y";
         String testValue2 = "x";
-        String expectedValue = "3*x + 3*y + y^2";
+        String expectedValue = "2*x^2+3*(x*y)";
         LinearVariable test1 = new LinearVariable(testValue1);
         LinearVariable test2 = new LinearVariable(testValue2);
         LinearVariable expected = new LinearVariable(expectedValue);
-        assertEquals(test1.add(test2), expected);
+        assertEquals(test1.multiply(test2), expected);
     }
 
     /**
@@ -77,39 +77,10 @@ public class LinearVariableTest {
     public void testMultiplyInt() {
         final double value1 = 1.65;
         final int value2 = -5;
-        LinearVariable test = new LinearVariable(value1);
+        LinearVariable test = new LinearVariable().add(value1);
 
-        LinearVariable expected = new LinearVariable(value1 * value2);
+        LinearVariable expected = new LinearVariable().add(value1 * value2);
         assertEquals(test.multiply(value2), expected);
-    }
-
-    /**
-     * Test method for
-     * {@link components.linear.LinearVariable#multiply(double)}.
-     */
-    @Test
-    public void testMultiplyDouble() {
-        final double value1 = 12.314;
-        final double value2 = 64.1;
-        LinearVariable test = new LinearVariable(value1);
-
-        LinearVariable expected = new LinearVariable(value1 * value2);
-        assertEquals(test.multiply(value2), expected);
-    }
-
-    /**
-     * Test method for
-     * {@link components.linear.LinearVariable#divide(components.linear.LinearVariable)}.
-     */
-    @Test
-    public void testDivide() {
-        final double value1 = 1.65;
-        final double value2 = 7.2;
-        LinearVariable test1 = new LinearVariable(value1);
-        LinearVariable test2 = new LinearVariable(value2);
-
-        LinearVariable expected = new LinearVariable(value1 / value2);
-        assertEquals(test1.divide(test2), expected);
     }
 
     /**
@@ -120,8 +91,8 @@ public class LinearVariableTest {
     public void testEqualsFalse() {
         final double value1 = 1.65;
         final double value2 = 7.2;
-        LinearVariable test1 = new LinearVariable(value1);
-        LinearVariable test2 = new LinearVariable(value2);
+        LinearVariable test1 = new LinearVariable().add(value1);
+        LinearVariable test2 = new LinearVariable().add(value2);
 
         assertFalse(test1.equals(test2));
     }
@@ -134,8 +105,8 @@ public class LinearVariableTest {
     public void testEqualsTrue() {
         final double value1 = -81.5;
         final double value2 = -81.5;
-        LinearVariable test1 = new LinearVariable(value1);
-        LinearVariable test2 = new LinearVariable(value2);
+        LinearVariable test1 = new LinearVariable().add(value1);
+        LinearVariable test2 = new LinearVariable().add(value2);
 
         assertTrue(test1.equals(test2));
     }
@@ -147,7 +118,7 @@ public class LinearVariableTest {
     public void testToStringNoDecimalsPositive() {
         final double value = 61.0;
         String expectedOutput = "61";
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertEquals(test.toString(), expectedOutput);
     }
@@ -159,8 +130,8 @@ public class LinearVariableTest {
     public void testToStringDecimalsPositive() {
         final double value = 61.012;
         String expectedOutput = "61.012";
-        LinearVariable test = new LinearVariable(value);
-
+        LinearVariable test = new LinearVariable().add(value);
+        System.out.print(test);
         assertEquals(test.toString(), expectedOutput);
     }
 
@@ -171,7 +142,7 @@ public class LinearVariableTest {
     public void testToStringNoDecimalsNegative() {
         final double value = -12.0;
         String expectedOutput = "-12";
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertEquals(test.toString(), expectedOutput);
     }
@@ -183,7 +154,7 @@ public class LinearVariableTest {
     public void testToStringDecimalsNegative() {
         final double value = -11.0423;
         String expectedOutput = "-11.0423";
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertEquals(test.toString(), expectedOutput);
     }
@@ -194,7 +165,7 @@ public class LinearVariableTest {
     @Test
     public void testClear() {
         final double value = -11.0423;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         /*
          * Call method under test
@@ -210,7 +181,7 @@ public class LinearVariableTest {
     @Test
     public void testNewInstance() {
         final double value = -11.0423;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
         LinearVariable result = test.newInstance();
 
         assertEquals(result, new LinearVariable());
@@ -223,7 +194,7 @@ public class LinearVariableTest {
     @Test
     public void testTransferFrom() {
         final double value1 = 1.65;
-        LinearVariable test1 = new LinearVariable(value1);
+        LinearVariable test1 = new LinearVariable().add(value1);
         LinearVariable test2 = new LinearVariable();
 
         /*
@@ -233,7 +204,7 @@ public class LinearVariableTest {
         test2.transferFrom(test1);
 
         assertEquals(test1, new LinearVariable());
-        assertEquals(test2, new LinearVariable(value1));
+        assertEquals(test2, new LinearVariable().add(value1));
     }
 
     /**
@@ -242,7 +213,7 @@ public class LinearVariableTest {
     @Test
     public void testIsZeroTruePositive() {
         final double value = 0.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertTrue(test.isZero());
     }
@@ -253,7 +224,7 @@ public class LinearVariableTest {
     @Test
     public void testIsZeroTrueNegative() {
         final double value = -0.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertTrue(test.isZero());
     }
@@ -264,7 +235,7 @@ public class LinearVariableTest {
     @Test
     public void testIsZeroFalsePositive() {
         final double value = 12.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertFalse(test.isZero());
     }
@@ -275,7 +246,7 @@ public class LinearVariableTest {
     @Test
     public void testIsZeroFalseNegative() {
         final double value = -11.0423;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertFalse(test.isZero());
     }
@@ -286,7 +257,7 @@ public class LinearVariableTest {
     @Test
     public void testIsOneTrue() {
         final double value = 1.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertTrue(test.isOne());
     }
@@ -297,7 +268,7 @@ public class LinearVariableTest {
     @Test
     public void testIsOneFalsePositive() {
         final double value = 11.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertFalse(test.isOne());
     }
@@ -308,89 +279,9 @@ public class LinearVariableTest {
     @Test
     public void testIsOneFalseNegative() {
         final double value = -11211.0;
-        LinearVariable test = new LinearVariable(value);
+        LinearVariable test = new LinearVariable().add(value);
 
         assertFalse(test.isOne());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#isPositive()}.
-     */
-    @Test
-    public void testIsPositiveTrue() {
-        final double value = 11211.0;
-        LinearVariable test = new LinearVariable(value);
-
-        assertTrue(test.isPositive());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#isPositive()}.
-     */
-    @Test
-    public void testIsPositiveFalse() {
-        final double value = -411211.01;
-        LinearVariable test = new LinearVariable(value);
-
-        assertFalse(test.isPositive());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#isNegativeOne()}.
-     */
-    @Test
-    public void testIsNegativeOneTrue() {
-        final double value = -1.0;
-        LinearVariable test = new LinearVariable(value);
-
-        assertTrue(test.isNegativeOne());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#isNegativeOne()}.
-     */
-    @Test
-    public void testIsNegativeOneFalsePositive() {
-        final double value = 12.31;
-        LinearVariable test = new LinearVariable(value);
-
-        assertFalse(test.isNegativeOne());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#isNegativeOne()}.
-     */
-    @Test
-    public void testIsNegativeOneFalseNegative() {
-        final double value = -112.1;
-        LinearVariable test = new LinearVariable(value);
-
-        assertFalse(test.isNegativeOne());
-    }
-
-    /**
-     * Test method for {@link components.linear.LinearVariable#value()}.
-     */
-    @Test
-    public void testValue() {
-        final double value = -112.1;
-        LinearVariable test = new LinearVariable(value);
-
-        assertTrue(Double.compare(test.value(), value) == 0);
-    }
-
-    /**
-     * Test method for
-     * {@link components.linear.LinearVariable#compareTo(components.linear.LinearVariable)}.
-     */
-    @Test
-    public void testCompareTo() {
-        final double value1 = 1.65;
-        final double value2 = 7.2;
-        LinearVariable test1 = new LinearVariable(value1);
-        LinearVariable test2 = new LinearVariable(value2);
-
-        assertTrue(test1.compareTo(test2) < 0);
     }
 
     /**
@@ -401,10 +292,10 @@ public class LinearVariableTest {
     public void testSubract() {
         final double value1 = 1.65;
         final double value2 = 7.2;
-        LinearVariable test1 = new LinearVariable(value1);
-        LinearVariable test2 = new LinearVariable(value2);
+        LinearVariable test1 = new LinearVariable().add(value1);
+        LinearVariable test2 = new LinearVariable().add(value2);
 
-        LinearVariable expected = new LinearVariable(value1 - value2);
+        LinearVariable expected = new LinearVariable().add(value1 - value2);
         assertEquals(test1.subtract(test2), expected);
     }
 
@@ -415,9 +306,9 @@ public class LinearVariableTest {
     public void testSubtractInt() {
         final double value1 = 1.65;
         final int value2 = -5;
-        LinearVariable test = new LinearVariable(value1);
+        LinearVariable test = new LinearVariable().add(value1);
 
-        LinearVariable expected = new LinearVariable(value1 - value2);
+        LinearVariable expected = new LinearVariable().add(value1 - value2);
         assertEquals(test.subtract(value2), expected);
     }
 
@@ -429,9 +320,9 @@ public class LinearVariableTest {
     public void testSubtractDouble() {
         final double value1 = 12.314;
         final double value2 = 64.1;
-        LinearVariable test = new LinearVariable(value1);
+        LinearVariable test = new LinearVariable().add(value1);
 
-        LinearVariable expected = new LinearVariable(value1 - value2);
+        LinearVariable expected = new LinearVariable().add(value1 - value2);
         assertEquals(test.subtract(value2), expected);
     }
 
@@ -442,8 +333,8 @@ public class LinearVariableTest {
     public void testNegative1() {
         final double value = 12.314;
         final double expectedValue = -12.314;
-        LinearVariable test = new LinearVariable(value);
-        LinearVariable expected = new LinearVariable(expectedValue);
+        LinearVariable test = new LinearVariable().add(value);
+        LinearVariable expected = new LinearVariable().add(expectedValue);
 
         assertEquals(test.negative(), expected);
     }
@@ -455,8 +346,8 @@ public class LinearVariableTest {
     public void testNegative2() {
         final double value = -5512.7;
         final double expectedValue = 5512.7;
-        LinearVariable test = new LinearVariable(value);
-        LinearVariable expected = new LinearVariable(expectedValue);
+        LinearVariable test = new LinearVariable().add(value);
+        LinearVariable expected = new LinearVariable().add(expectedValue);
 
         assertEquals(test.negative(), expected);
     }

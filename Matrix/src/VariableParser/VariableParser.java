@@ -5,10 +5,6 @@ import components.queue.Queue;
 import components.queue.Queue1L;
 import components.set.Set;
 import components.set.Set1L;
-import components.simplereader.SimpleReader;
-import components.simplereader.SimpleReader1L;
-import components.simplewriter.SimpleWriter;
-import components.simplewriter.SimpleWriter1L;
 import components.utilities.FormatChecker;
 
 /**
@@ -94,8 +90,11 @@ public final class VariableParser {
         assert 0 <= position : "Violation of: 0 <= position";
         assert position < text.length() : "Violation of: position < |text|";
 
-        String output = "";
+        if (isOperator(text.charAt(position))) {
+            return Character.toString(text.charAt(position));
+        }
 
+        String output = "";
         boolean searchingSeparatorString = false;
         for (char c : separators) {
             if (c == text.charAt(position)) {
@@ -137,14 +136,23 @@ public final class VariableParser {
 
     private static String despace(String s) {
         StringBuilder sb = new StringBuilder();
-
         for (char c : s.toCharArray()) {
             if (!Character.isSpaceChar(c)) {
                 sb.append(c);
             }
         }
-
         return sb.toString();
+    }
+
+    private static boolean isOperator(char c) {
+
+        String operators = "*^+-()";
+        for (char op : operators.toCharArray()) {
+            if (op == c) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Queue<String> tokenize(String input) {
@@ -153,7 +161,7 @@ public final class VariableParser {
         /*
          * Define separator characters for test
          */
-        final String separatorStr = " \t*^+-";
+        final String separatorStr = " \t*^+-()";
         Set<Character> separatorSet = new Set1L<Character>();
         generateElements(separatorStr, separatorSet);
 
@@ -170,14 +178,11 @@ public final class VariableParser {
     }
 
     public static LinearVariable parseExpr(String input) {
-        Queue<String> tokens = tokenize(input);
+        Queue<String> tokens = tokenize(despace(input));
 
         LinearVariable result = new LinearVariable();
 
         if (tokens.length() > 0) {
-            if (tokens.front().equals("(")) {
-
-            }
             result = parseTerm(tokens);
         }
         while (tokens.length() > 0) {
@@ -192,73 +197,105 @@ public final class VariableParser {
     }
 
     private static LinearVariable parseVariable(Queue<String> tokens) {
-        LinearVariable result = new LinearVariable().add(1);
+        LinearVariable result = new LinearVariable();
+        boolean product = false;
         tokens.dequeue(); // Get rid of "("
-        while (!tokens.front().equals(")")) {
-            String token = tokens.dequeue(); // Get Variable name
-            if (tokens.front().equals("^")) {
-                tokens.dequeue();
-                result.multiply(new LinearVariable().add(token,
-                        Double.parseDouble(tokens.dequeue())));
-            }
-            result.multiply(tokens.dequeue(), 1);
+        if (!tokens.front().equals(")")) {
+            result = parseTerm(tokens);
         }
+        if (tokens.front().equals("*")) {
+            product = true;
+        }
+        while (!tokens.front().equals(")")) {
+            if (product) {
+                tokens.dequeue(); // Get rid of "*"
+                result = result.multiply(parseTerm(tokens));
+            } else {
+                if (tokens.dequeue().equals("+")) {
+                    result = result.add(parseTerm(tokens));
+                } else {
+                    result = result.add(parseTerm(tokens).multiply(-1));
+                }
+            }
+        }
+        tokens.dequeue(); // Get rid of ")"
         return result;
     }
 
     private static LinearVariable parseTerm(Queue<String> tokens) {
         LinearVariable result = new LinearVariable();
-        String front = tokens.dequeue();
-        if (FormatChecker.canParseDouble(front)) {
-            // Either a Number or a variable with a coefficient
-            if (tokens.length() > 0 && tokens.front().equals("*")) {
-                // Variable with a coefficient
-                tokens.dequeue();
-                String variableName = tokens.dequeue();
+        if (tokens.length() > 0) {
+            if (FormatChecker.canParseDouble(tokens.front())) {
+                String front = tokens.dequeue();
+                // Either a Number or a variable with a coefficient
+                if (tokens.length() > 0 && tokens.front().equals("*")) {
+                    // Variable with a coefficient
+                    tokens.dequeue(); // Get rid of "*"
+
+                    if (tokens.length() > 0 && tokens.front().equals("(")) {
+                        LinearVariable tempResult = parseVariable(tokens);
+
+                        // Variable with coefficient with either an exponent or no exponent
+                        if (tokens.length() > 0 && tokens.front().equals("^")) {
+                            // Has an exponent
+                            tokens.dequeue();
+                            int power = Integer.parseInt(tokens.dequeue());
+                            result = result.add(tempResult
+                                    .multiply(Double.parseDouble(front))
+                                    .power(power));
+                        } else {
+                            // Has no exponent
+                            result = result.add(tempResult
+                                    .multiply(Double.parseDouble(front)));
+                        }
+                    } else {
+                        String variableName = tokens.dequeue();
+
+                        // Variable with coefficient with either an exponent or no exponent
+                        if (tokens.length() > 0 && tokens.front().equals("^")) {
+                            // Has an exponent
+                            tokens.dequeue();
+                            int power = Integer.parseInt(tokens.dequeue());
+                            result = result.add(Double.parseDouble(front),
+                                    variableName, power);
+                        } else {
+                            // Has no exponent
+                            result = result.add(Double.parseDouble(front),
+                                    variableName);
+                        }
+                    }
+
+                } else {
+                    // Just a number
+                    result = result.add(Double.parseDouble(front));
+                }
+            } else if (tokens.front().equals("(")) {
+                LinearVariable tempResult = parseVariable(tokens);
 
                 // Variable with coefficient with either an exponent or no exponent
                 if (tokens.length() > 0 && tokens.front().equals("^")) {
                     // Has an exponent
                     tokens.dequeue();
                     int power = Integer.parseInt(tokens.dequeue());
-                    result = result.add(Double.parseDouble(front), variableName,
-                            power);
+                    result = result.add(tempResult.power(power));
                 } else {
                     // Has no exponent
-                    result = result.add(variableName,
-                            Double.parseDouble(front));
+                    result = result.add(tempResult);
                 }
-
             } else {
-                // Just a number
-                result = result.add(Double.parseDouble(front));
-            }
-        } else if (front.equals("(")) {
-            LinearVariable tempResult = parseVariable(tokens);
+                // A variable with no coefficient
+                String variableName = tokens.dequeue();
 
-            // Variable with coefficient with either an exponent or no exponent
-            if (tokens.length() > 0 && tokens.front().equals("^")) {
-                // Has an exponent
-                tokens.dequeue();
-                int power = Integer.parseInt(tokens.dequeue());
-                result = result.add(tempResult.power(power));
-            } else {
-                // Has no exponent
-                result = result.add(tempResult);
-            }
-        } else {
-            // A variable with no coefficient
-            String variableName = front;
-
-            // Variable with no coefficient with either an exponent or no exponent
-            if (tokens.length() > 0 && tokens.front().equals("^")) {
-                // Has an exponent
-                tokens.dequeue();
-                int power = Integer.parseInt(tokens.dequeue());
-                result = result.add(variableName, power);
-            } else {
-                // Has no exponent
-                result = result.add(variableName, 1.0);
+                // Variable with no coefficient with either an exponent or no exponent
+                if (tokens.length() > 0 && tokens.front().equals("^")) {
+                    // Has an exponent
+                    tokens.dequeue();
+                    int power = Integer.parseInt(tokens.dequeue());
+                    result = result.add(variableName, power);
+                } else {
+                    // Has no exponent
+                    result = result.add(variableName);
+                }
             }
         }
         return result;
@@ -364,36 +401,6 @@ public final class VariableParser {
 
         return true;
 
-    }
-
-    /**
-     * Main method.
-     *
-     * @param args
-     *            the command line arguments
-     */
-    public static void main(String[] args) {
-        SimpleReader in = new SimpleReader1L();
-        SimpleWriter out = new SimpleWriter1L();
-        /*
-         * Put your main program code here
-         */
-
-        String test = "x^2 +  2*x - 4*x^2+2";
-        //out.println(test);
-        out.println(parseExpr(test).add(parseExpr("y")).add(parseExpr("z"))
-                .multiply(5)
-                .multiply(parseExpr(test).add(parseExpr("a"))
-                        .add(parseExpr("b")).multiply(5))
-                .multiply(parseExpr(test).add(parseExpr("c"))
-                        .add(parseExpr("d")).multiply(5)
-                        .multiply(parseExpr(test).add(parseExpr("e"))
-                                .add(parseExpr("f")).multiply(5))));
-        /*
-         * Close input and output streams
-         */
-        in.close();
-        out.close();
     }
 
 }

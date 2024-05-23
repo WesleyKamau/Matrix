@@ -2,6 +2,11 @@ package Checkers;
 
 import java.awt.event.ActionListener;
 
+/**
+ * View interface.
+ *
+ * @author Bruce W. Weide
+ */
 public interface CheckersView extends ActionListener {
 
     /**
@@ -13,6 +18,10 @@ public interface CheckersView extends ActionListener {
      */
     void registerObserver(CheckersController controller);
 
-    void updateBoard();
+    void showPossibleMoves(int x, int y);
+
+    void clearPossibleMoves();
+
+    void winner(String playerName);
 
 }
