@@ -47,13 +47,11 @@ This can be used to perform computations, store data, and more!</code>
 <code>There are two matrix classes, Matrix and Simplematrix.
 The difference is that the parameter type of Matrix must extend the Linear class, whereas SimpleMatrix does not have this restrition.
 This allows Matrix to support more mathematical operations whereas SimpleMatrix is simply a grid that stores data.
-
 There are currently 4 Linear classes that may be used interchangably:
 LinearInteger, an integer wrapper
 LinearDouble, a double wrapper
 LinearNaturalNumber, a wrapper of a custom Ohio State java component that represents the mathematical natural number set (see below on dependency)
 and LinearVariable, a custom class meant to represent basic equations, still a wip
-
 With these, the Matrix class supports a suite of operations, such as:
 Addition
 Subtraction
@@ -61,7 +59,6 @@ Augmenting
 Transposing
 Determinant
 ... and more!
-
 Feel free to check it out!</code>
 
 ---
