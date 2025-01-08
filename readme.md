@@ -444,12 +444,12 @@ Testing is done through JUnit, which may be done by running the test cases insid
 
 ## 🎗 License
 
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+This project is protected under the [MIT](https://choosealicense.com/licenses/mit/) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/mit/) file.
 
 ---
 
 ## 🙌 Acknowledgments
 
-- List any resources, contributors, inspiration, etc. here.
+- Shout out to my Linear Algebra professor!
 
 ---
